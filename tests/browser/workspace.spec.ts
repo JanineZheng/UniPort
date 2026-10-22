@@ -6,10 +6,10 @@ test("unit conversion, overrides, market switching, persistence and language", a
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(
     "跨越单位，连接市场。",
   );
-  await expect(page.locator(".result-number")).toContainText("39.37");
+  await expect(page.locator(".result-number")).toHaveText("39.37in");
   await page.getByLabel("目标单位", { exact: true }).selectOption("ft");
   await page.getByLabel("输入数值", { exact: true }).fill("30.48");
-  await expect(page.locator(".result-number")).toContainText("1");
+  await expect(page.locator(".result-number")).toHaveText("1ft");
   await page.reload();
   await expect(page.getByLabel("目标单位", { exact: true })).toHaveValue("ft");
   await page
@@ -98,5 +98,5 @@ test("storage unavailable does not break the workspace", async ({
   await page.goto("/");
   await expect(page.getByText("偏好仅本次有效")).toBeVisible();
   await page.getByLabel("输入数值", { exact: true }).fill("2.54");
-  await expect(page.locator(".result-number")).toContainText("1");
+  await expect(page.locator(".result-number")).toHaveText("1in");
 });

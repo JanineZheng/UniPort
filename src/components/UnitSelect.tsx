@@ -17,7 +17,11 @@ export default function UnitSelect({
   return (
     <label className="field">
       <span>{label}</span>
-      <select value={value} onChange={(e) => onChange(e.target.value)}>
+      <select
+        aria-label={label}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+      >
         {unitsFor(category).map((u) => (
           <option key={u.id} value={u.id}>
             {u[locale]} · {u.symbol}

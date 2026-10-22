@@ -333,6 +333,7 @@ export default function App() {
             <label className="field market-field">
               <span>{t("所在国家 / 地区", "Your country / region")}</span>
               <select
+                aria-label={t("所在国家 / 地区", "Your country / region")}
                 value={p.source}
                 onChange={(e) => changeMarket("source", e.target.value)}
               >
@@ -349,6 +350,7 @@ export default function App() {
             <label className="field market-field">
               <span>{t("目标市场", "Target market")}</span>
               <select
+                aria-label={t("目标市场", "Target market")}
                 value={p.target}
                 onChange={(e) => changeMarket("target", e.target.value)}
               >
@@ -694,6 +696,7 @@ export default function App() {
                   <label className="field">
                     <span>{t("出发城市", "Source city")}</span>
                     <select
+                      aria-label={t("出发城市", "Source city")}
                       value={p.sourceZone}
                       onChange={(e) => {
                         setP({ ...p, sourceZone: e.target.value });
@@ -710,6 +713,7 @@ export default function App() {
                   <label className="field">
                     <span>{t("目标城市", "Target city")}</span>
                     <select
+                      aria-label={t("目标城市", "Target city")}
                       value={p.targetZone}
                       onChange={(e) =>
                         setP({ ...p, targetZone: e.target.value })

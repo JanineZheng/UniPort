@@ -19,11 +19,12 @@ npm test                 # 核心逻辑、计量、DST、偏好和批量输入�
 npm run build            # TypeScript 检查 + 生产构建，输出 dist/
 npm run check            # 核心测试 + 构建
 npx playwright install chromium
-npx playwright test      # 桌面 / 移动流程
+npm run test:browser     # Chromium 桌面 / 移动流程，18 项用例
+npx playwright show-report # 查看最近一次 HTML 报告
 npm run preview          # 预览生产构建
 ```
 
-CI 仅执行验证，不包含发布步骤。
+CI 仅执行验证，不包含发布步骤。浏览器测试失败时保存截图与 trace；HTML 报告和测试产物在 GitHub Actions 中保留 14 天。
 
 ## 首版功能
 
