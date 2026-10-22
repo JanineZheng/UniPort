@@ -85,6 +85,12 @@ src/
 
 无分析脚本、外部字体、后台请求或账号。偏好存储在 `unitport.preferences.v1`；商品数据只在内存。清除网站数据会删除偏好，跨设备不自动同步。Clipboard API 需要 HTTPS 或 localhost 和浏览器授权；失败可选中结果手动复制。目标为当前主流浏览器，要求 BigInt、Intl timeZone 和 CSS Grid。
 
+## 品牌 UI
+
+网站已接入新版 Uniport SVG Logo 和浏览器图标。配色采用 Port Lime `#D9FF6B`、Ink `#0F0F0F`、Cloud `#F7F7F5`、Slate `#717571`，统一用于品牌栏、工具导航、结果卡、收藏与复制操作。
+
+`src/styles.css` 顶部集中定义品牌颜色与界面语义变量；`public/brand/` 保存实际使用的透明矢量 Logo 和 `palette.json`。`src/components/Icon.tsx` 提供统一线条 SVG 图标。所有资源随静态站点分发，无外部字体或图标服务依赖。品牌使用规则与本次检查见 [UI 升级说明](docs/BRAND-UI.md)。
+
 ## 设计与部署
 
 - [PRD、信息架构与实施计划](docs/PRD.md)

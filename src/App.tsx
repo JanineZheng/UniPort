@@ -13,6 +13,7 @@ import {
 import { key, readPreferences, recommendedPairs } from "./core/preferences";
 import type { Preferences } from "./core/preferences";
 import UnitSelect from "./components/UnitSelect";
+import Icon from "./components/Icon";
 
 type Tool = Category | "specs" | "time" | "currency";
 const tools: {
@@ -261,10 +262,14 @@ export default function App() {
     <div className="app-shell">
       <header className="topbar">
         <a className="brand" href="./" aria-label="UnitPort home">
-          <span className="brand-mark">
-            U<span>↗</span>
-          </span>
-          UnitPort<span className="beta">BETA</span>
+          <img
+            className="brand-logo"
+            src="/brand/uniport-horizontal-transparent-white.svg"
+            alt="Uniport"
+            width="184"
+            height="48"
+          />
+          <span className="beta">BETA</span>
         </a>
         <div className="header-right">
           <span className="privacy">
@@ -275,7 +280,7 @@ export default function App() {
             onClick={() => setP({ ...p, locale: zh ? "en" : "zh" })}
             aria-label={t("Switch to English", "切换到中文")}
           >
-            ◎ <span>{zh ? "EN" : "中文"}</span>
+            <Icon name="globe" /> <span>{zh ? "EN" : "中文"}</span>
           </button>
         </div>
       </header>
@@ -294,10 +299,19 @@ export default function App() {
             </p>
           </div>
           <div className="intro-art" aria-hidden="true">
-            <span>cm</span>
-            <div>↗</div>
-            <span>in</span>
-            <small>LOCAL → GLOBAL</small>
+            <span className="unit-chip chip-from">cm</span>
+            <div className="intro-logo">
+              <img
+                src="/brand/uniport-logo-transparent-white.svg"
+                alt=""
+                width="96"
+                height="96"
+              />
+            </div>
+            <span className="unit-chip chip-to">
+              in <Icon name="arrow" />
+            </span>
+            <small>LOCAL UNITS. GLOBAL POSSIBILITIES.</small>
           </div>
         </section>
         <section
@@ -396,19 +410,26 @@ export default function App() {
                   }}
                 >
                   <span className="tool-icon" aria-hidden="true">
-                    {tool.icon}
+                    <Icon name={tool.id} />
                   </span>
                   <span>{tool[p.locale]}</span>
                   {tool.id === "currency" ? (
                     <small>{t("即将上线", "Soon")}</small>
                   ) : (
-                    <span className="nav-arrow">↗</span>
+                    <span className="nav-arrow" aria-hidden="true">
+                      ↗
+                    </span>
                   )}
                 </button>
               ))}
             </nav>
             <div className="sidebar-note">
-              <span>✧</span>
+              <img
+                src="/brand/uniport-logo-transparent-white.svg"
+                alt=""
+                width="36"
+                height="36"
+              />
               <strong>{t("让数据适应市场", "Make your data travel.")}</strong>
               <p>
                 {t(
@@ -491,7 +512,7 @@ export default function App() {
                       }));
                     }}
                   >
-                    ⇄
+                    <Icon name="swap" />
                   </button>
                   <div className="result-card">
                     <span className="mini-label">{t("换算结果", "TO")}</span>
@@ -534,7 +555,7 @@ export default function App() {
                       copy(`${output} ${unit(p.pairs[category].to).symbol}`)
                     }
                   >
-                    ⧉ {t("复制结果", "Copy result")}
+                    <Icon name="copy" /> {t("复制结果", "Copy result")}
                   </button>
                 </div>
                 <div className="context-note">
@@ -661,7 +682,8 @@ export default function App() {
                     disabled={!allValid}
                     onClick={() => copy(textResult)}
                   >
-                    ⧉ {t("复制全部英文规格", "Copy all English specs")}
+                    <Icon name="copy" />{" "}
+                    {t("复制全部英文规格", "Copy all English specs")}
                   </button>
                 </div>
               </>
@@ -799,7 +821,8 @@ export default function App() {
                       )
                     }
                   >
-                    ⧉ {t("复制英文时间", "Copy time in English")}
+                    <Icon name="copy" />{" "}
+                    {t("复制英文时间", "Copy time in English")}
                   </button>
                 </div>
                 <div className="context-note">
