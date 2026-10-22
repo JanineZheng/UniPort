@@ -14,8 +14,10 @@ import { key, readPreferences, recommendedPairs } from "./core/preferences";
 import type { Preferences } from "./core/preferences";
 import UnitSelect from "./components/UnitSelect";
 import Icon from "./components/Icon";
+import ShippingTool from "./components/ShippingTool";
+import { pages, pageFor } from "./config/pages";
 
-type Tool = Category | "specs" | "time" | "currency";
+type Tool = Category | "specs" | "time" | "currency" | "cubic" | "dimensions";
 const tools: {
   id: Tool;
   zh: string;
@@ -24,13 +26,15 @@ const tools: {
   detail: string;
   detailEn: string;
 }[] = [
+  { id: "cubic", zh: "立方英尺 / CBM", en: "Cubic feet / CBM", icon: "▱", detail: "输入箱子长宽高和数量，立即获得 ft³ 与 m³。", detailEn: "Enter box dimensions and quantity. Get cubic feet and CBM." },
+  { id: "dimensions", zh: "长宽高转换", en: "Dimensions", icon: "↔", detail: "粘贴或输入长宽高，一次转换三个尺寸。", detailEn: "Convert length, width and height from cm to inches, or back." },
   {
     id: "length",
     zh: "长度",
     en: "Length",
     icon: "↔",
-    detail: "从尺寸开始，连接每个市场。",
-    detailEn: "Bring every dimension into your market.",
+    detail: "厘米转英寸、米转英尺，输入数值即出结果。",
+    detailEn: "Convert cm to inches, meters to feet and more.",
   },
   {
     id: "weight",
@@ -38,7 +42,7 @@ const tools: {
     en: "Weight",
     icon: "⚖",
     detail: "商品净重、包装重量，轻松换算。",
-    detailEn: "From product weight to package weight.",
+    detailEn: "Convert kg to lbs, grams to ounces and more.",
   },
   {
     id: "volume",
@@ -62,7 +66,7 @@ const tools: {
     en: "Time zones",
     icon: "◷",
     detail: "选好城市，让沟通准时发生。",
-    detailEn: "The right city. The right time to connect.",
+    detailEn: "Convert a specific date and time between cities.",
   },
   {
     id: "specs",
@@ -115,11 +119,21 @@ const errorMessages: Record<string, [string, string]> = {
     "Enter a valid date and time between 1900 and 2100.",
   ],
 };
-export default function App() {
+export default function App({ path = typeof window === "undefined" ? "/" : window.location.pathname }: { path?: string }) {
+  const page = pageFor(path);
   const [initial] = useState(readPreferences);
-  const [p, setP] = useState<Preferences>(initial.preferences);
+  const [p, setP] = useState<Preferences>(() => {
+    const pref = initial.preferences;
+    if (page.path !== "/") {
+      const pairs = { ...pref.pairs };
+      const presets = { length: ["cm", "in"], weight: ["kg", "lb"], volume: ["ml", "us-floz"], temperature: ["c", "f"] };
+      if (page.tool in presets) { const c = page.tool as Category; pairs[c] = { from: presets[c][0], to: presets[c][1] }; }
+      return { ...pref, pairs };
+    }
+    return pref;
+  });
   const [storage, setStorage] = useState(initial.available);
-  const [active, setActive] = useState<Tool>("length");
+  const [active, setActive] = useState<Tool>(page.tool);
   const [value, setValue] = useState("100");
   const [batch, setBatch] = useState(
     "SKU-001, 30, 20, 10, 0.5\nSKU-002, 45, 30, 15, 1.2",
@@ -145,11 +159,9 @@ export default function App() {
       setStorage(false);
     }
     document.documentElement.lang = p.locale === "zh" ? "zh-CN" : "en";
-    document.title =
-      p.locale === "zh"
-        ? "UnitPort · 跨境换算工作台"
-        : "UnitPort · Conversion workspace";
-  }, [p]);
+    document.title = page.title;
+    document.querySelector('meta[name="description"]')?.setAttribute('content', page.description);
+  }, [p, page]);
   useEffect(() => {
     if (notice) {
       const timer = setTimeout(() => setNotice(""), 3500);
@@ -259,9 +271,10 @@ export default function App() {
   const textResult = validRows.map((r) => r.text).join("\n");
   const category = active as Category;
   return (
-    <div className="app-shell">
+    <div className={`app-shell tool-${active}`}>
+      <a className="skip-link" href="#workspace">{t("跳至换算工具", "Skip to converter")}</a>
       <header className="topbar">
-        <a className="brand" href="./" aria-label="UnitPort home">
+        <a className="brand" href="/" aria-label="UnitPort home">
           <img
             className="brand-logo"
             src="/brand/uniport-horizontal-transparent-white.svg"
@@ -287,14 +300,14 @@ export default function App() {
       <main className="layout">
         <section className="intro">
           <div>
-            <p className="eyebrow">BUILT FOR GLOBAL SELLERS</p>
+            <p className="eyebrow">FREE TOOLS / PRODUCT & SHIPPING CONVERSIONS</p>
             <h1>
-              {t("跨越单位，连接市场。", "Different units. One workspace.")}
+              {zh ? page.zh : page.heading}
             </h1>
             <p>
               {t(
-                "从商品尺寸到跨洋时差，你的跨境换算工作台。",
-                "Dimensions, product specs and time zones. Ready for your next market.",
+                "厘米转英寸、千克转磅、箱子体积计算。输入即出结果，一键复制。",
+                "Dimensions, weight, box volume. Enter your numbers. Copy your answer.",
               )}
             </p>
           </div>
@@ -314,13 +327,20 @@ export default function App() {
             <small>LOCAL UNITS. GLOBAL POSSIBILITIES.</small>
           </div>
         </section>
+        {page.path === "/" && <div className="quick-start" aria-label={t("快捷工具", "Quick tools")}>
+          <a href="/dimensions-converter"><Icon name="length" /><span><strong>{t("长宽高转换", "Dimensions converter")}</strong><small>cm ↔ inches · L × W × H</small></span><b>↗</b></a>
+          <a href="/cubic-feet-calculator"><Icon name="specs" /><span><strong>{t("箱子体积计算", "Cubic feet calculator")}</strong><small>{t("长 × 宽 × 高 → ft³ / CBM", "Box dimensions → ft³ / CBM")}</small></span><b>↗</b></a>
+          <a href="/product-specs-converter"><Icon name="copy" /><span><strong>{t("批量商品规格", "Batch product specs")}</strong><small>{t("粘贴表格 → 复制英文规格", "Paste rows → copy English specs")}</small></span><b>↗</b></a>
+        </div>}
+        <details className="market-settings" open={active === "time"}>
+        <summary>{t("按市场推荐单位（可选）", "Market defaults (optional)")} <span>{source.flag} {source[p.locale]} → {target.flag} {target[p.locale]}</span></summary>
         <section
           className="market-card"
           aria-label={t("市场设置", "Market settings")}
         >
           <div className="market-heading">
             <span className="section-kicker">
-              01 / {t("设置你的市场", "YOUR MARKETS")}
+              {t("只更新推荐单位，无需设置即可换算", "SUGGESTED UNITS — CONVERT WITHOUT SETUP")}
             </span>
             <span className="saved">
               {storage ? "✓" : "!"}{" "}
@@ -395,24 +415,23 @@ export default function App() {
             )}
           </div>
         </section>
-        <div className="workspace">
+        </details>
+        <div className="workspace" id="workspace">
           <aside className="sidebar">
             <p className="section-kicker">
-              02 / {t("选择换算工具", "YOUR TOOLS")}
+              {t("选择工具", "CHOOSE A TOOL")}
             </p>
             <nav aria-label={t("换算工具", "Conversion tools")}>
-              {tools.map((tool) => (
-                <button
+              {tools.filter(tool => tool.id !== "currency").map((tool) => (
+                <a
+                  href={tool.id === "currency" ? "#workspace" : pages.find(item => item.tool === tool.id && item.path !== "/")?.path ?? "/"}
                   key={tool.id}
                   className={active === tool.id ? "active" : ""}
                   aria-current={active === tool.id ? "page" : undefined}
-                  onClick={() => {
-                    setActive(tool.id);
-                    setNotice("");
-                  }}
+                  onClick={() => { if (tool.id === "currency") { setActive(tool.id); setNotice(""); } }}
                 >
                   <span className="tool-icon" aria-hidden="true">
-                    <Icon name={tool.id} />
+                    <Icon name={tool.id === "cubic" ? "specs" : tool.id === "dimensions" ? "length" : tool.id} />
                   </span>
                   <span>{tool[p.locale]}</span>
                   {tool.id === "currency" ? (
@@ -422,7 +441,7 @@ export default function App() {
                       ↗
                     </span>
                   )}
-                </button>
+                </a>
               ))}
             </nav>
             <div className="sidebar-note">
@@ -470,8 +489,10 @@ export default function App() {
                 </label>
               )}
             </div>
+            {(active === "cubic" || active === "dimensions") && <ShippingTool key={active} mode={active} zh={zh} precision={p.precision} copy={copy} />}
             {["length", "weight", "volume", "temperature"].includes(active) && (
               <>
+                <div className="example-row"><span>{t("试一试", "Try an example")}</span>{(active === "length" ? ["2.54", "25.4", "100"] : active === "weight" ? ["0.5", "1", "10"] : active === "temperature" ? ["0", "20", "100"] : ["100", "250", "500"]).map(n => <button key={n} onClick={() => setValue(n)}>{n} {unit(p.pairs[category].from).symbol}</button>)}</div>
                 <div className="conversion-grid">
                   <div className="input-card">
                     <span className="mini-label">{t("原始数值", "FROM")}</span>
@@ -869,6 +890,12 @@ export default function App() {
             )}
           </section>
         </div>
+        <section className="learn-section" aria-label={t("换算指南", "Conversion guide")}>
+          <div><p className="eyebrow">A LITTLE CONTEXT</p><h2>{t("怎么算，一眼明白。", "Know what you’re calculating.")}</h2><p>{t("先选工具，再输入数据；结果随输入自动更新。", "Choose a tool, enter your numbers and get an instant result.")}</p></div>
+          <div className="guide-grid"><article><h3>{t("计算方法", "How it works")}</h3><p>{page.formula}</p><code>{page.example}</code></article><article><h3>{t("结果可以直接用吗？", "Can I use these results in a listing?")}</h3><p>{t("可以。复制尺寸或英文规格时会带上单位。小数位只影响显示；发布前请确认原始尺寸与单位。", "Yes. Copied dimensions and product specifications include units. Decimal places affect display only. Check source measurements and units before publishing.")}</p><h3>{t("需要账号吗？", "Do I need an account?")}</h3><p>{t("不需要。换算在浏览器内进行，不上传输入数据。", "No. Calculations run in your browser. Your input is not uploaded.")}</p></article></div>
+          {page.tool === "length" && <div className="conversion-table"><h3>{t("厘米 / 英寸速查表", "Centimeters to inches table")}</h3><table><thead><tr><th>cm</th>{[1,5,10,25.4,50,100].map(n => <th key={n}>{n}</th>)}</tr></thead><tbody><tr><th>in</th>{[1,5,10,25.4,50,100].map(n => <td key={n}>{format(convert(String(n), "cm", "in"), 4)}</td>)}</tr></tbody></table></div>}
+          <div className="related-tools"><h3>{t("更多换算工具", "More conversion tools")}</h3><div>{pages.filter(other => other.path !== page.path && other.path !== '/').map(other => <a key={other.path} href={other.path}>{zh ? other.zh : other.heading} <span aria-hidden="true">↗</span></a>)}</div></div>
+        </section>
         <section className="trust-strip">
           <div>
             <span>↗</span>
@@ -916,7 +943,7 @@ export default function App() {
             {t("让跨境，更进一步。", "A little closer to every market.")}
           </span>
           <span>
-            {t("MVP v0.1 · 纯前端工具", "MVP v0.1 · Browser-based tools")}
+            {t("免费使用 · 无需注册", "Free to use · No sign-up")}
           </span>
         </footer>
       </main>

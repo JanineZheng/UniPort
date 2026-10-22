@@ -1,13 +1,13 @@
 # Cloudflare 静态部署
 
-本次工作不执行发布，不配置生产凭证，也不推送可能触发生产构建的分支。
+本次只更新功能分支和 PR，不合并、不执行发布，也不配置生产凭证。仓库 CI 仅验证，不包含部署步骤。
 
 ## 推荐：Workers Static Assets
 
-项目是纯静态 React SPA，没有 Worker 后端入口，也不需要数据库。
+项目是预渲染的 React 多页面静态网站，没有 Worker 后端入口，也不需要数据库。
 
 1. Node.js 使用 `.nvmrc` 指定的 22.23.3（最低 22.18）。
-2. 在仓库根目录执行 `npm ci` 和 `npm run check`，生成 `dist/index.html`。
+2. 在仓库根目录执行 `npm ci` 和 `npm run check`，生成 `dist/index.html` 及 8 个工具子目录的 `index.html`。未来发布前配置 `SITE_URL` 为实际 HTTPS 域名根地址，生成 canonical、sitemap 与 robots 引用。
 3. 在 Cloudflare 中连接仓库时设置：
 
 | 配置 | 值 |
@@ -18,7 +18,7 @@
 | Worker name | `unitport`，与 `wrangler.jsonc` 一致 |
 | Node version | `22.23.3` |
 
-`wrangler.jsonc` 显式声明 `assets.directory = "./dist"`，防止出现之前的 “Could not detect a directory containing static files”。`not_found_handling` 设置为 `single-page-application`。
+`wrangler.jsonc` 显式声明 `assets.directory = "./dist"`，防止出现之前的 “Could not detect a directory containing static files”。`not_found_handling` 设置为 `404-page`，`html_handling` 设置为 `drop-trailing-slash`。未知路径必须返回真实 404，不要回退首页 200。
 
 Cloudflare 默认分支自动部署可能发布生产内容。首次接入前先确认生产分支与预览分支设置，避免把尚未验收的改动直接上线。
 
@@ -53,7 +53,8 @@ npm run preview
 - HTTPS 环境检查 Clipboard API；无权限时界面应提示手动复制。
 - 清空测试站点本地存储后应为中国 → 美国；刷新可恢复新偏好。
 - 纽约 `2026-03-08 02:30` 不存在；`2026-11-01 01:30` 必须先选具体一次。
-- 汇率面板显示“尚未接入”，无报价和外部 API 请求。
+- 未公开汇率工具，无模拟报价和外部 API 请求。
+- 禁用 JavaScript 检查 9 个页面的独立 title、description、H1 与工具正文；核对实际域名下 canonical、sitemap、robots、未知路径 404 和尾斜杠跳转。
 - 回退使用 Cloudflare 部署历史恢复上一成功版本；代码回退走审查流程。
 
 参考：[Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/)、[Wrangler 配置](https://developers.cloudflare.com/workers/wrangler/configuration/)。

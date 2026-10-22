@@ -1,6 +1,6 @@
 # UnitPort
 
-跨境卖家的单位、商品规格与时区换算工作台。React + TypeScript + Vite，默认中国 → 美国，无登录、无后端，不上传商品数据。
+跨境卖家的单位、商品规格、箱子体积与时区换算工作台。React + TypeScript + Vite，英文优先并支持中文，无登录、无后端，不上传商品数据。市场推荐默认中国 → 美国，可选展开，不阻挡换算。
 
 产品名为 **UnitPort**；仓库名沿用 `JanineZheng/UniPort`。
 
@@ -19,7 +19,7 @@ npm test                 # 核心逻辑、计量、DST、偏好和批量输入�
 npm run build            # TypeScript 检查 + 生产构建，输出 dist/
 npm run check            # 核心测试 + 构建
 npx playwright install chromium
-npm run test:browser     # Chromium 桌面 / 移动流程，18 项用例
+npm run test:browser     # 构建后运行 Chromium 桌面 / 移动流程，44 项用例
 npx playwright show-report # 查看最近一次 HTML 报告
 npm run preview          # 预览生产构建
 ```
@@ -31,11 +31,13 @@ CI 仅执行验证，不包含发布步骤。浏览器测试失败时保存截�
 - 12 个初始国家/市场，默认中国 → 美国；收藏美国、英国、日本，可自行增删。
 - 自由选择长度、重量、液体容量、温度单位；支持单位交换与 2/4/6 位显示精度。
 - 区分常衡盎司 `oz`、美制 `US fl oz`、英制 `Imperial fl oz`；不跨质量与容量换算。
+- 商品长宽高粘贴与转换；箱子体积计算同时输出 ft³ 与 m³（CBM），支持相同尺寸箱数。
 - 商品长宽高 + 重量批量换算并复制英文规格。
 - 城市 + IANA 时区，按具体日期处理 DST；重复时刻要求选择，不存在时刻不输出。
 - 中英文、响应式、键盘可操作、复制失败反馈。
 - 国家、市场、收藏、语言、单位、城市、小数位保存至当前浏览器 localStorage。输入数值和商品数据不持久化；禁用存储时仅当前会话有效。
-- 汇率只预留 Provider 接口并明确显示未接入状态，不提供任何模拟实时数据。
+- 汇率只保留未来 Provider 接口，未接入数据源，不提供公开工具入口或模拟报价。
+- 9 个可直接访问的预渲染页面，各有独立 title、description、H1、指南、示例、Open Graph 与 WebApplication JSON-LD；详情见 [布局与 SEO](docs/SEO-UPDATE.md)。
 
 ## 批量商品规格
 
@@ -62,6 +64,10 @@ src/
   core/convert.ts        BigInt 分数精确运算，显示时舍入
   core/timezone.ts       Intl 时区解析与 DST 校验
   core/specs.ts          批量校验与英文格式
+  core/shipping.ts       尺寸粘贴、精确箱子体积与箱数
+  config/pages.ts        9 个页面的路径、SEO 文案与默认工具
+  prerender.tsx          服务端渲染入口
+  ../scripts/prerender.mjs  HTML、canonical、sitemap 与 robots 输出
   core/preferences.ts    本地存储 schema v1 与容错
   core/currency.ts       下一阶段 FX Provider contract
   components/UnitSelect.tsx
@@ -91,6 +97,12 @@ src/
 网站已接入新版 Uniport SVG Logo 和浏览器图标。配色采用 Port Lime `#D9FF6B`、Ink `#0F0F0F`、Cloud `#F7F7F5`、Slate `#717571`，统一用于品牌栏、工具导航、结果卡、收藏与复制操作。
 
 `src/styles.css` 顶部集中定义品牌颜色与界面语义变量；`public/brand/` 保存实际使用的透明矢量 Logo 和 `palette.json`。`src/components/Icon.tsx` 提供统一线条 SVG 图标。所有资源随静态站点分发，无外部字体或图标服务依赖。品牌使用规则与本次检查见 [UI 升级说明](docs/BRAND-UI.md)。
+
+## SEO 构建
+
+`npm run build` 生成 9 个含正文的静态页面。正式域名确定后，通过构建环境变量 `SITE_URL` 提供实际 HTTPS 域名根地址；脚本据此生成 canonical、og:url 和 sitemap.xml。不提供时省略这些域名相关字段，避免发布虚构域名。CI 使用保留域名 `https://unitport.example` 测试生成逻辑，该域名不是生产地址。
+
+`npm run preview` 按无尾斜杠路径提供静态 HTML，未知工具页面返回带 noindex 的 404。手机端先展示工具与结果，再展示快捷入口和可选市场设置。中文保存在本地偏好中，当前没有独立中文 URL 或 hreflang。
 
 ## 设计与部署
 

@@ -18,7 +18,7 @@ export const key = "unitport.preferences.v1";
 export function defaultPreferences(): Preferences {
   return {
     version: 1,
-    locale: "zh",
+    locale: "en",
     source: "CN",
     target: "US",
     favorites: ["US", "GB", "JP"],
