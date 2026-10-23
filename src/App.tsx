@@ -143,6 +143,8 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
   );
   const [occurrence, setOccurrence] = useState("");
   const [notice, setNotice] = useState("");
+  const [interactive, setInteractive] = useState(false);
+  useEffect(() => setInteractive(true), []);
   const zh = p.locale === "zh";
   const t = (cn: string, en: string) => (zh ? cn : en);
   const errorText = (code: string) =>
@@ -271,7 +273,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
   const textResult = validRows.map((r) => r.text).join("\n");
   const category = active as Category;
   return (
-    <div className={`app-shell tool-${active}`}>
+    <fieldset className={`app-shell tool-${active}`} disabled={!interactive}>
       <a className="skip-link" href="#workspace">{t("跳至换算工具", "Skip to converter")}</a>
       <header className="topbar">
         <a className="brand" href="/" aria-label="UnitPort home">
@@ -950,6 +952,6 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
       <div role="status" className={notice ? "toast visible" : "toast"}>
         {notice}
       </div>
-    </div>
+    </fieldset>
   );
 }

@@ -28,7 +28,7 @@ npm run dev -- --port 4178
 npm run check
 ```
 
-正式域名确定后设置构建环境变量，值应为该站点实际 HTTPS 域名根地址：`SITE_URL`。构建脚本据此生成每页 canonical、og:url、sitemap.xml 和 robots.txt 内的 sitemap 引用。未提供时不编造生产域名，正常输出页面和 robots.txt。默认构建不包含 canonical/sitemap，未来部署前必须配置；当前任务不部署。
+正式域名确定后设置构建环境变量，值应为该站点实际 HTTPS 域名根地址：`SITE_URL`。构建脚本据此生成每页 canonical、og:url、sitemap.xml 和 robots.txt 内的 sitemap 引用。未提供时不编造生产域名，正常输出页面和 robots.txt。未设置 SITE_URL 的构建不包含 canonical/sitemap；生产构建已配置为 https://uniport.janine-cheng22.workers.dev。
 
 Cloudflare Workers 静态配置使用 `404-page` 和 `drop-trailing-slash`，避免未知路径返回首页 200，并统一页面路径。其他静态托管需配置等效目录索引、斜杠规范化和真实 404 状态。不要沿用 SPA 全路径回退首页的旧规则。
 
@@ -38,7 +38,7 @@ Cloudflare Workers 静态配置使用 `404-page` 和 `drop-trailing-slash`，避
 - TypeScript 和生产构建通过；输出 9 个含正文的 HTML 页面。
 - 浏览器实测：示例填入、长度结果复制、中文切换与刷新保留、尺寸粘贴及格式错误、箱数拒绝小数、箱子总体积复制、批量错误阻止复制及英文规格复制。
 - 桌面有效视口约 1309px、手机有效视口约 354px 下未发现横向页面溢出。手机首页结果卡进入首屏。
-- 整合后针对构建产物运行完整 44 项浏览器自动化：桌面 1440 × 1000、手机 390 × 844。包含原回归、新工具和 9 个页面的中英文布局、禁用 JavaScript 的 SEO 正文与元数据、品牌资源、404、尾斜杠跳转和键盘跳转；DST 重复与缺失时间界面均已通过。
+- 整合后针对构建产物运行完整 46 项浏览器自动化：桌面 1440 × 1000、手机 390 × 844。包含原回归、新工具和 9 个页面的中英文布局、禁用 JavaScript 的 SEO 正文与元数据、品牌资源、404、尾斜杠跳转和键盘跳转；DST 重复与缺失时间界面均已通过。
 - 使用 `https://unitport.example` 作为本地/CI 测试夹具，单独验证 canonical、og:url、JSON-LD url、sitemap 和 robots 引用。该保留域名不代表任何生产地址；默认构建不嵌入它。
 - 本地预览显式解析目录中的静态页面，避免 Vite SPA 回退将所有子路径的 HTML 返回为首页。生产仍以 Workers Static Assets 的静态路由配置为准。
 - 部署前仍需使用实际域名检查 canonical、站点地图、404 状态，接入 Search Console 后再观察美国查询数据。

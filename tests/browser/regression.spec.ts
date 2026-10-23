@@ -1,5 +1,25 @@
 import { test, expect } from "@playwright/test";
 
+test("prerendered controls wait for JavaScript before accepting input", async ({ page }) => {
+  let release!: () => void;
+  const gate = new Promise<void>(resolve => { release = resolve; });
+  await page.route("**/assets/*.js", async route => {
+    await gate;
+    await route.continue();
+  });
+  try {
+    await page.goto("/kg-to-lbs", { waitUntil: "commit" });
+    const input = page.getByLabel("Enter value", { exact: true });
+    await expect(input).toBeDisabled();
+    release();
+    await expect(input).toBeEnabled();
+    await input.fill("0.45359237");
+    await expect(page.locator(".result-number")).toHaveText("1lb");
+  } finally {
+    release();
+  }
+});
+
 test("all conversion tools validate input, preserve precision and swap units", async ({ page }) => {
   await page.goto("/");
   const input = page.getByLabel("Enter value", { exact: true });

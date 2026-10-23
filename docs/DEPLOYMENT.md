@@ -1,6 +1,8 @@
 # Cloudflare 静态部署
 
-本次只更新功能分支和 PR，不合并、不执行发布，也不配置生产凭证。仓库 CI 仅验证，不包含部署步骤。
+2026-10-23 已获授权合并与发布。PR #1 已合并 main，Cloudflare Git 集成负责生产部署；GitHub Actions 仍仅执行验证。
+
+生产地址：`https://uniport.janine-cheng22.workers.dev`。Cloudflare 项目名为 `uniport`，与仓库 `UniPort`、产品 UnitPort 对应。
 
 ## 推荐：Workers Static Assets
 
@@ -13,14 +15,14 @@
 | 配置 | 值 |
 | --- | --- |
 | 根目录 | 仓库根目录（不要填 src） |
-| Build command | `npm ci && npm run build` |
-| Deploy command | `npx wrangler@4.151.3 deploy` |
-| Worker name | `unitport`，与 `wrangler.jsonc` 一致 |
+| Build command | `npm ci && npm run check` |
+| Deploy command | `npx wrangler@4.151.3 deploy --name uniport` |
+| Worker name | `uniport`，与 `wrangler.jsonc` 一致 |
 | Node version | `22.23.3` |
 
 `wrangler.jsonc` 显式声明 `assets.directory = "./dist"`，防止出现之前的 “Could not detect a directory containing static files”。`not_found_handling` 设置为 `404-page`，`html_handling` 设置为 `drop-trailing-slash`。未知路径必须返回真实 404，不要回退首页 200。
 
-Cloudflare 默认分支自动部署可能发布生产内容。首次接入前先确认生产分支与预览分支设置，避免把尚未验收的改动直接上线。
+生产分支为 main。Cloudflare 构建变量 `SITE_URL=https://uniport.janine-cheng22.workers.dev`，必须在构建阶段设置，不能只配置成 Worker runtime 变量。`workers_dev=true` 保证正式访问地址在后续部署中保持启用。
 
 ### 手动发布（仅在用户明确授权后）
 

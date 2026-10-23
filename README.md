@@ -19,7 +19,7 @@ npm test                 # 核心逻辑、计量、DST、偏好和批量输入�
 npm run build            # TypeScript 检查 + 生产构建，输出 dist/
 npm run check            # 核心测试 + 构建
 npx playwright install chromium
-npm run test:browser     # 构建后运行 Chromium 桌面 / 移动流程，44 项用例
+npm run test:browser     # 构建后运行 Chromium 桌面 / 移动流程，46 项用例
 npx playwright show-report # 查看最近一次 HTML 报告
 npm run preview          # 预览生产构建
 ```
@@ -112,4 +112,4 @@ src/
 
 推荐 Workers Static Assets，`wrangler.jsonc` 已显式指定 `./dist`。必须先执行构建，避免“Could not detect a directory containing static files”。也提供 Pages 的独立配置说明。
 
-没有自动部署工作流。本地开发、构建成功不代表已发布；生产发布需要单独授权。
+GitHub Actions 仅验证。2026-10-23 获授权后合并并启用 Cloudflare main 分支生产部署，正式地址和构建参数见部署说明。
