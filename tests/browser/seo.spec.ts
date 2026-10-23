@@ -39,6 +39,7 @@ for (const entry of pages) {
     page.on("pageerror", error => errors.push(error.message));
     page.on("console", message => { if (message.type() === "error") errors.push(message.text()); });
     page.on("response", response => { if (response.status() >= 400) errors.push(`${response.status()} ${response.url()}`); });
+    if (entry.tool === "currency") await page.route("https://api.frankfurter.dev/**", route => route.fulfill({ json: [{ base: "CNY", quote: "USD", rate: 0.14, date: new Date().toISOString().slice(0, 10) }] }));
     await page.goto(entry.path);
     for (const locale of ["en", "zh"] as const) {
       if (locale === "zh") await page.getByRole("button", { name: "切换到中文" }).click();
@@ -47,7 +48,7 @@ for (const entry of pages) {
       await expect(page.getByRole("navigation").locator('[aria-current="page"]')).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const links = page.getByRole("navigation").getByRole("link");
-      await expect(links).toHaveCount(8);
+      await expect(links).toHaveCount(pages.length - 1);
       expect(await links.evaluateAll(elements => elements.map(el => el.getAttribute("href")))).toEqual(
         expect.arrayContaining(pages.filter(other => other.path !== "/").map(other => other.path)),
       );
@@ -69,7 +70,7 @@ test("keyboard skip link reaches the converter", async ({ page }) => {
   await expect(page.getByRole("link", { name: "Skip to converter" })).toBeFocused();
   await page.keyboard.press("Enter");
   await expect(page).toHaveURL(/#workspace$/);
-  await expect(page.getByRole("navigation").getByRole("link", { name: "Currency", exact: true })).toHaveCount(0);
+  await expect(page.getByRole("navigation").getByRole("link", { name: "Currency", exact: true })).toHaveCount(1);
 });
 
 test("unknown pages return 404 and known pages drop trailing slashes", async ({ request }) => {

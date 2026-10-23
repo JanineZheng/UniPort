@@ -58,7 +58,7 @@ test('DST overlap and gap require explicit handling', async ({page}) => {
 test('blocked local storage still allows conversions', async ({page}) => {
   await page.addInitScript(() => Object.defineProperty(window,'localStorage',{get(){throw new Error('blocked');}}));
   await page.goto('/');
-  await page.locator('summary').click();
+  await page.locator('.market-settings > summary').click();
   await expect(page.getByText('Preferences are session-only')).toBeVisible();
   await page.getByLabel('Enter value',{exact:true}).fill('2.54');
   await expect(page.locator('.result-number')).toHaveText('1in');

@@ -15,9 +15,11 @@ import type { Preferences } from "./core/preferences";
 import UnitSelect from "./components/UnitSelect";
 import Icon from "./components/Icon";
 import ShippingTool from "./components/ShippingTool";
+import CurrencyTool from "./components/CurrencyTool";
 import { pages, pageFor } from "./config/pages";
 
-type Tool = Category | "specs" | "time" | "currency" | "cubic" | "dimensions";
+import { defaultToolOrder } from "./config/toolOrder";
+import type { Tool } from "./config/toolOrder";
 const tools: {
   id: Tool;
   zh: string;
@@ -81,8 +83,8 @@ const tools: {
     zh: "汇率",
     en: "Currency",
     icon: "＄",
-    detail: "实时汇率，将在下一阶段接入。",
-    detailEn: "Live exchange rates are planned for the next phase.",
+    detail: "获取最新可用的每日参考汇率，查看来源与数据日期。",
+    detailEn: "Latest available daily reference rates, with source and date.",
   },
 ];
 const errorMessages: Record<string, [string, string]> = {
@@ -133,7 +135,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
     return pref;
   });
   const [storage, setStorage] = useState(initial.available);
-  const [active, setActive] = useState<Tool>(page.tool);
+  const active: Tool = page.tool;
   const [value, setValue] = useState("100");
   const [batch, setBatch] = useState(
     "SKU-001, 30, 20, 10, 0.5\nSKU-002, 45, 30, 15, 1.2",
@@ -151,6 +153,16 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
     errorMessages[code]?.[zh ? 0 : 1] ??
     t("换算失败，请检查输入。", "Conversion failed. Please check your input.");
   const current = tools.find((tool) => tool.id === active)!;
+  const orderedTools = p.toolOrder.map(id => tools.find(tool => tool.id === id)!);
+  const toolPage = (id: Tool) => pages.find(item => item.tool === id && item.path !== "/")!;
+  function moveTool(id: Tool, direction: -1 | 1) {
+    setP(prev => {
+      const order = [...prev.toolOrder], index = order.indexOf(id), next = index + direction;
+      if (index < 0 || next < 0 || next >= order.length) return prev;
+      [order[index], order[next]] = [order[next], order[index]];
+      return { ...prev, toolOrder: order };
+    });
+  }
   const source = market(p.source),
     target = market(p.target);
   useEffect(() => {
@@ -307,14 +319,14 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               {zh ? page.zh : page.heading}
             </h1>
             <p>
-              {t(
+              {active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
                 "厘米转英寸、千克转磅、箱子体积计算。输入即出结果，一键复制。",
                 "Dimensions, weight, box volume. Enter your numbers. Copy your answer.",
               )}
             </p>
           </div>
           <div className="intro-art" aria-hidden="true">
-            <span className="unit-chip chip-from">cm</span>
+            <span className="unit-chip chip-from">{active === "currency" ? source.currency : "cm"}</span>
             <div className="intro-logo">
               <img
                 src="/brand/uniport-logo-transparent-white.svg"
@@ -324,15 +336,13 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               />
             </div>
             <span className="unit-chip chip-to">
-              in <Icon name="arrow" />
+              {active === "currency" ? target.currency : "in"} <Icon name="arrow" />
             </span>
             <small>LOCAL UNITS. GLOBAL POSSIBILITIES.</small>
           </div>
         </section>
         {page.path === "/" && <div className="quick-start" aria-label={t("快捷工具", "Quick tools")}>
-          <a href="/dimensions-converter"><Icon name="length" /><span><strong>{t("长宽高转换", "Dimensions converter")}</strong><small>cm ↔ inches · L × W × H</small></span><b>↗</b></a>
-          <a href="/cubic-feet-calculator"><Icon name="specs" /><span><strong>{t("箱子体积计算", "Cubic feet calculator")}</strong><small>{t("长 × 宽 × 高 → ft³ / CBM", "Box dimensions → ft³ / CBM")}</small></span><b>↗</b></a>
-          <a href="/product-specs-converter"><Icon name="copy" /><span><strong>{t("批量商品规格", "Batch product specs")}</strong><small>{t("粘贴表格 → 复制英文规格", "Paste rows → copy English specs")}</small></span><b>↗</b></a>
+          {orderedTools.slice(0, 3).map(tool => <a key={tool.id} href={toolPage(tool.id).path}><Icon name={tool.id === "cubic" ? "specs" : tool.id === "dimensions" ? "length" : tool.id} /><span><strong>{tool[p.locale]}</strong><small>{zh ? tool.detail : tool.detailEn}</small></span><b>↗</b></a>)}
         </div>}
         <details className="market-settings" open={active === "time"}>
         <summary>{t("按市场推荐单位（可选）", "Market defaults (optional)")} <span>{source.flag} {source[p.locale]} → {target.flag} {target[p.locale]}</span></summary>
@@ -424,28 +434,33 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               {t("选择工具", "CHOOSE A TOOL")}
             </p>
             <nav aria-label={t("换算工具", "Conversion tools")}>
-              {tools.filter(tool => tool.id !== "currency").map((tool) => (
+              {orderedTools.map((tool) => (
                 <a
-                  href={tool.id === "currency" ? "#workspace" : pages.find(item => item.tool === tool.id && item.path !== "/")?.path ?? "/"}
+                  href={toolPage(tool.id).path}
                   key={tool.id}
                   className={active === tool.id ? "active" : ""}
                   aria-current={active === tool.id ? "page" : undefined}
-                  onClick={() => { if (tool.id === "currency") { setActive(tool.id); setNotice(""); } }}
                 >
                   <span className="tool-icon" aria-hidden="true">
                     <Icon name={tool.id === "cubic" ? "specs" : tool.id === "dimensions" ? "length" : tool.id} />
                   </span>
                   <span>{tool[p.locale]}</span>
-                  {tool.id === "currency" ? (
-                    <small>{t("即将上线", "Soon")}</small>
-                  ) : (
-                    <span className="nav-arrow" aria-hidden="true">
-                      ↗
-                    </span>
-                  )}
+                  <span className="nav-arrow" aria-hidden="true">↗</span>
                 </a>
               ))}
             </nav>
+            <details className="tool-order">
+              <summary>{t("调整排序", "Customize order")}</summary>
+              <p>{storage ? t("点击箭头调整，自动保存到当前浏览器。", "Use the arrows. Saved automatically in this browser.") : t("浏览器存储不可用，排序仅在本页有效。", "Browser storage is unavailable. Order applies to this page only.")}</p>
+              <ol aria-label={t("工具排序", "Tool order")}>
+                {orderedTools.map((tool, index) => <li key={tool.id}>
+                  <span>{index + 1}. {tool[p.locale]}</span>
+                  <button type="button" disabled={index === 0} aria-label={t(`上移${tool.zh}`, `Move ${tool.en} up`)} onClick={() => moveTool(tool.id, -1)}>↑</button>
+                  <button type="button" disabled={index === orderedTools.length - 1} aria-label={t(`下移${tool.zh}`, `Move ${tool.en} down`)} onClick={() => moveTool(tool.id, 1)}>↓</button>
+                </li>)}
+              </ol>
+              <button type="button" className="order-reset" onClick={() => setP(prev => ({ ...prev, toolOrder: [...defaultToolOrder] }))}>{t("恢复默认排序", "Reset default order")}</button>
+            </details>
             <div className="sidebar-note">
               <img
                 src="/brand/uniport-logo-transparent-white.svg"
@@ -863,40 +878,14 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 </div>
               </>
             )}
-            {active === "currency" && (
-              <div className="currency-empty">
-                <span className="currency-art">
-                  ↗<small>FX</small>
-                </span>
-                <span className="coming-soon">PHASE 02</span>
-                <h3>{t("让汇率也跟上你的市场", "Exchange rates are next.")}</h3>
-                <p>
-                  {source.currency} → {target.currency}
-                </p>
-                <p>
-                  {t(
-                    "尚未接入汇率数据源，因此暂不提供换算数值。",
-                    "No exchange-rate provider is connected. Conversion values are not available yet.",
-                  )}
-                </p>
-                <div className="context-note">
-                  <span>ⓘ</span>
-                  <p>
-                    {t(
-                      "正式接入后，每条报价将显示来源与更新时间。",
-                      "Once connected, every quote will show its source and update time.",
-                    )}
-                  </p>
-                </div>
-              </div>
-            )}
+            {active === "currency" && <CurrencyTool key={`${source.currency}-${target.currency}`} source={source.currency} target={target.currency} zh={zh} precision={p.precision} />}
           </section>
         </div>
         <section className="learn-section" aria-label={t("换算指南", "Conversion guide")}>
           <div><p className="eyebrow">A LITTLE CONTEXT</p><h2>{t("怎么算，一眼明白。", "Know what you’re calculating.")}</h2><p>{t("先选工具，再输入数据；结果随输入自动更新。", "Choose a tool, enter your numbers and get an instant result.")}</p></div>
-          <div className="guide-grid"><article><h3>{t("计算方法", "How it works")}</h3><p>{page.formula}</p><code>{page.example}</code></article><article><h3>{t("结果可以直接用吗？", "Can I use these results in a listing?")}</h3><p>{t("可以。复制尺寸或英文规格时会带上单位。小数位只影响显示；发布前请确认原始尺寸与单位。", "Yes. Copied dimensions and product specifications include units. Decimal places affect display only. Check source measurements and units before publishing.")}</p><h3>{t("需要账号吗？", "Do I need an account?")}</h3><p>{t("不需要。换算在浏览器内进行，不上传输入数据。", "No. Calculations run in your browser. Your input is not uploaded.")}</p></article></div>
+          <div className="guide-grid"><article><h3>{t("计算方法", "How it works")}</h3><p>{page.formula}</p><code>{page.example}</code></article><article><h3>{active === "currency" ? t("参考汇率可以用于结算吗？", "Is this a settlement quote?") : t("结果可以直接用吗？", "Can I use these results in a listing?")}</h3><p>{active === "currency" ? t("仅供估算，不包含银行点差、手续费或支付平台加价。请以实际成交报价为准。", "For estimates only. Bank spreads, fees and payment-provider markups are excluded. Use your provider’s actual transaction quote for settlement.") : t("可以。复制尺寸或英文规格时会带上单位。小数位只影响显示；发布前请确认原始尺寸与单位。", "Yes. Copied dimensions and product specifications include units. Decimal places affect display only. Check source measurements and units before publishing.")}</p><h3>{t("需要账号吗？", "Do I need an account?")}</h3><p>{t("不需要。换算在浏览器内进行，不上传输入数据。", "No. Calculations run in your browser. Your input is not uploaded.")}</p></article></div>
           {page.tool === "length" && <div className="conversion-table"><h3>{t("厘米 / 英寸速查表", "Centimeters to inches table")}</h3><table><thead><tr><th>cm</th>{[1,5,10,25.4,50,100].map(n => <th key={n}>{n}</th>)}</tr></thead><tbody><tr><th>in</th>{[1,5,10,25.4,50,100].map(n => <td key={n}>{format(convert(String(n), "cm", "in"), 4)}</td>)}</tr></tbody></table></div>}
-          <div className="related-tools"><h3>{t("更多换算工具", "More conversion tools")}</h3><div>{pages.filter(other => other.path !== page.path && other.path !== '/').map(other => <a key={other.path} href={other.path}>{zh ? other.zh : other.heading} <span aria-hidden="true">↗</span></a>)}</div></div>
+          <div className="related-tools"><h3>{t("更多换算工具", "More conversion tools")}</h3><div>{orderedTools.map(tool => toolPage(tool.id)).filter(other => other.path !== page.path).map(other => <a key={other.path} href={other.path}>{zh ? other.zh : other.heading} <span aria-hidden="true">↗</span></a>)}</div></div>
         </section>
         <section className="trust-strip">
           <div>

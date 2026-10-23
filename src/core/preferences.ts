@@ -1,3 +1,5 @@
+import { defaultToolOrder, normalizeToolOrder } from "../config/toolOrder.ts";
+import type { Tool } from "../config/toolOrder.ts";
 import { markets, market } from "../config/markets.ts";
 import { unitsFor } from "./units.ts";
 import type { Category } from "./units.ts";
@@ -13,6 +15,7 @@ export type Preferences = {
   sourceZone: string;
   targetZone: string;
   precision: number;
+  toolOrder: Tool[];
 };
 export const key = "unitport.preferences.v1";
 export function defaultPreferences(): Preferences {
@@ -26,6 +29,7 @@ export function defaultPreferences(): Preferences {
     sourceZone: "Asia/Shanghai",
     targetZone: "America/Los_Angeles",
     precision: 2,
+    toolOrder: [...defaultToolOrder],
   };
 }
 export function recommendedPairs(
@@ -81,6 +85,7 @@ export function parsePreferences(raw: string | null): Preferences {
         ? data.targetZone
         : market(target).cities[0].zone,
       precision: [2, 4, 6].includes(data.precision) ? data.precision : 2,
+      toolOrder: normalizeToolOrder(data.toolOrder),
     };
   } catch {
     return defaults;

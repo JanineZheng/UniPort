@@ -9,7 +9,7 @@
 项目是预渲染的 React 多页面静态网站，没有 Worker 后端入口，也不需要数据库。
 
 1. Node.js 使用 `.nvmrc` 指定的 22.23.3（最低 22.18）。
-2. 在仓库根目录执行 `npm ci` 和 `npm run check`，生成 `dist/index.html` 及 8 个工具子目录的 `index.html`。未来发布前配置 `SITE_URL` 为实际 HTTPS 域名根地址，生成 canonical、sitemap 与 robots 引用。
+2. 在仓库根目录执行 `npm ci` 和 `npm run check`，生成 `dist/index.html` 及 9 个工具子目录的 `index.html`。未来发布前配置 `SITE_URL` 为实际 HTTPS 域名根地址，生成 canonical、sitemap 与 robots 引用。
 3. 在 Cloudflare 中连接仓库时设置：
 
 | 配置 | 值 |
@@ -55,8 +55,9 @@ npm run preview
 - HTTPS 环境检查 Clipboard API；无权限时界面应提示手动复制。
 - 清空测试站点本地存储后应为中国 → 美国；刷新可恢复新偏好。
 - 纽约 `2026-03-08 02:30` 不存在；`2026-11-01 01:30` 必须先选具体一次。
-- 未公开汇率工具，无模拟报价和外部 API 请求。
-- 禁用 JavaScript 检查 9 个页面的独立 title、description、H1 与工具正文；核对实际域名下 canonical、sitemap、robots、未知路径 404 和尾斜杠跳转。
+- `/currency-converter` 显示 Frankfurter 来源、数据日期与获取时间；失败或过期时不输出旧结果。验证实际跨域请求及每日报价标签。
+- 默认汇率置顶、温度置底；验证调整排序、跨页面与刷新保存，以及恢复默认。
+- 禁用 JavaScript 检查 10 个页面的独立 title、description、H1 与工具正文；核对实际域名下 canonical、sitemap、robots、未知路径 404 和尾斜杠跳转。
 - 回退使用 Cloudflare 部署历史恢复上一成功版本；代码回退走审查流程。
 
 参考：[Workers Static Assets](https://developers.cloudflare.com/workers/static-assets/)、[Wrangler 配置](https://developers.cloudflare.com/workers/wrangler/configuration/)。

@@ -1,0 +1,60 @@
+import { test, expect } from "@playwright/test";
+const api = "https://api.frankfurter.dev/**";
+const date = () => new Date().toISOString().slice(0, 10);
+const row = () => [{ base: "CNY", quote: "USD", rate: 0.14993, date: date(), providers: [{key: "ECB", date: date(), rate: 0.14993}] }];
+test("reference rate displays provenance, distinct timestamps and precise amount conversion", async ({page}) => {
+  const urls: string[] = [];
+  await page.route(api, route => { urls.push(route.request().url()); return route.fulfill({json: row()}); });
+  await page.goto("/currency-converter");
+  await expect(page.getByTestId("fx-result")).toHaveText("14.99 USD");
+  await expect(page.getByRole("link", {name: "Frankfurter", exact: true})).toHaveAttribute("href", "https://frankfurter.dev/");
+  await expect(page.getByText("Rate date:")).toContainText(date());
+  await expect(page.getByText("Retrieved at:")).toContainText("UTC");
+  await expect(page.getByText(/Daily reference rates · Not live market/)).toBeVisible();
+  await page.getByLabel("Amount", {exact: true}).fill("200");
+  await expect(page.getByTestId("fx-result")).toHaveText("29.99 USD");
+  expect(urls.length).toBe(1); expect(urls[0]).not.toContain("amount");
+  await page.getByRole("button", {name: "切换到中文"}).click();
+  await expect(page.getByText("数据更新日期：")).toContainText(date());
+});
+test("failed refresh removes the former result and retry can recover", async ({page}) => {
+  let fail = false;
+  await page.route(api, route => fail ? route.fulfill({status: 503, json: {}}) : route.fulfill({json: row()}));
+  await page.goto("/currency-converter");
+  await expect(page.getByTestId("fx-result")).toHaveText("14.99 USD");
+  fail = true; await page.getByRole("button", {name: "Refresh rate"}).click();
+  await expect(page.getByRole("alert")).toContainText("Could not fetch the rate");
+  await expect(page.getByTestId("fx-result")).toHaveText("—");
+  fail = false; await page.getByRole("button", {name: "Refresh rate"}).click();
+  await expect(page.getByTestId("fx-result")).toHaveText("14.99 USD");
+});
+test("a successful response containing old data is expired, not a current quote", async ({page}) => {
+  await page.route(api, route => route.fulfill({json: [{...row()[0], date: "2020-01-01"}]}));
+  await page.goto("/currency-converter");
+  await expect(page.getByRole("alert")).toContainText("Rate expired");
+  await expect(page.getByTestId("fx-result")).toHaveText("—");
+  await expect(page.getByText("Rate date:")).toContainText("2020-01-01");
+});
+test("switching currency cannot reuse the previous pair and same currency needs no quote", async ({page}) => {
+  await page.route(api, route => new URL(route.request().url()).searchParams.get("quotes") === "USD" ? route.fulfill({json: row()}) : route.fulfill({status: 422, json: {}}));
+  await page.goto("/currency-converter");
+  await expect(page.getByTestId("fx-result")).toHaveText("14.99 USD");
+  await page.getByLabel("Target currency", {exact: true}).selectOption("GBP");
+  await expect(page.getByTestId("fx-result")).toHaveText("—");
+  await expect(page.getByRole("alert")).toContainText("unavailable");
+  await page.getByLabel("Target currency", {exact: true}).selectOption("CNY");
+  await expect(page.getByTestId("fx-result")).toHaveText("100 CNY");
+  await expect(page.getByText(/Same currency: 1:1/)).toBeVisible();
+});
+test("hung requests time out and suppress conversion", async ({page}) => {
+  await page.clock.install();
+  let hang = false;
+  await page.route(api, route => hang ? new Promise<void>(() => {}) : route.fulfill({json: row()}));
+  await page.goto("/currency-converter");
+  await expect(page.getByTestId("fx-result")).toHaveText("14.99 USD");
+  hang = true;
+  await page.getByRole("button", {name: "Refresh rate"}).click();
+  await page.clock.fastForward(12_001);
+  await expect(page.getByRole("alert")).toContainText("timed out");
+  await expect(page.getByTestId("fx-result")).toHaveText("—");
+});

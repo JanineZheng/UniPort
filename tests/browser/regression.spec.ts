@@ -72,7 +72,7 @@ test("clipboard rejection gives actionable feedback", async ({ page }) => {
 
 test("favorites persist while product data stays out of storage", async ({ page }) => {
   await page.goto("/");
-  await page.locator("summary").click();
+  await page.locator(".market-settings > summary").click();
   await page.getByRole("combobox", { name: "Target market", exact: true }).selectOption("DE");
   await page.getByRole("button", { name: "Save market" }).click();
   await expect(page.locator(".favorites").getByRole("button", { name: "🇩🇪 Germany" })).toBeVisible();
@@ -81,18 +81,18 @@ test("favorites persist while product data stays out of storage", async ({ page 
   const stored = await page.evaluate(() => JSON.stringify(localStorage));
   expect(stored).not.toContain("PRIVATE-SKU");
   await page.reload();
-  await page.locator("summary").click();
+  await page.locator(".market-settings > summary").click();
   await expect(page.locator(".favorites").getByRole("button", { name: "🇩🇪 Germany" })).toBeVisible();
   await page.getByRole("button", { name: "Saved" }).click();
   await page.reload();
-  await page.locator("summary").click();
+  await page.locator(".market-settings > summary").click();
   await expect(page.locator(".favorites").getByRole("button", { name: "🇩🇪 Germany" })).toHaveCount(0);
 });
 
 test("corrupt stored preferences recover to usable defaults", async ({ page }) => {
   await page.addInitScript(() => localStorage.setItem("unitport.preferences.v1", "{broken"));
   await page.goto("/");
-  await page.locator("summary").click();
+  await page.locator(".market-settings > summary").click();
   await expect(page.getByRole("combobox", { name: "Target market", exact: true })).toHaveValue("US");
   await expect(page.locator(".result-number")).toHaveText("39.37in");
   await expect(page.getByText("Preferences saved locally")).toBeVisible();
@@ -105,7 +105,7 @@ test("unit overrides, market switching and language persist on the home page", a
   await expect(page.locator(".result-number")).toHaveText("1ft");
   await page.reload();
   await expect(page.getByLabel("Target unit", { exact: true })).toHaveValue("ft");
-  await page.locator("summary").click();
+  await page.locator(".market-settings > summary").click();
   await page.locator(".favorites").getByRole("button", { name: "🇯🇵 Japan" }).click();
   await expect(page.getByLabel("Target market", { exact: true })).toHaveValue("JP");
   await expect(page.getByLabel("Target unit", { exact: true })).toHaveValue("cm");

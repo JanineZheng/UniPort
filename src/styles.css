@@ -1450,3 +1450,29 @@ th { background: #ecefe5; }
   .panel-heading { margin-bottom: 14px; }
   .panel-heading .section-kicker { display: none; }
 }
+
+.currency-tool { display: grid; gap: 18px; min-width: 0; }
+.currency-tool .time-entry { flex-wrap: wrap; }
+.fx-metadata { color: var(--slate, #717571); font-size: 14px; overflow-wrap: anywhere; }
+.fx-metadata p { margin: 10px 0; }
+.fx-metadata a { color: inherit; text-decoration: underline; }
+.fx-metadata details { padding: 8px 0; }
+.currency-tool .result-card h3 { overflow-wrap: anywhere; }
+
+.tool-order { margin-top: 14px; border-top: 1px solid #414538; padding-top: 14px; }
+.tool-order summary { cursor: pointer; font-size: 12px; padding: 8px; color: var(--lime); }
+.tool-order p { color: #c8cbbf; font-size: 11px; line-height: 1.7; margin: 10px 6px; }
+.tool-order ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
+.tool-order li { display: flex; align-items: center; gap: 4px; font-size: 12px; min-width: 0; }
+.tool-order li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.tool-order button { background: #292c22; color: var(--cloud); border: 1px solid #53584a; border-radius: 6px; min-width: 36px; min-height: 36px; cursor: pointer; }
+.tool-order button:hover:not(:disabled) { background: #414538; }
+.tool-order button:disabled { opacity: .3; cursor: default; }
+.tool-order button:focus-visible, .tool-order summary:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
+.tool-order .order-reset { margin-top: 12px; width: 100%; font-size: 12px; }
+@media (max-width: 720px) {
+  .tool-order { padding-top: 6px; margin-top: 6px; }
+  .tool-order li { font-size: 14px; }
+  .tool-order button { min-width: 44px; min-height: 44px; }
+  .quick-start a small { overflow-wrap: anywhere; }
+}
