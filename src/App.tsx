@@ -18,7 +18,7 @@ import ShippingTool from "./components/ShippingTool";
 import CurrencyTool from "./components/CurrencyTool";
 import { pages, pageFor } from "./config/pages";
 
-import { defaultToolOrder } from "./config/toolOrder";
+import ToolNavigation from "./components/ToolNavigation";
 import type { Tool } from "./config/toolOrder";
 const tools: {
   id: Tool;
@@ -155,14 +155,6 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
   const current = tools.find((tool) => tool.id === active)!;
   const orderedTools = p.toolOrder.map(id => tools.find(tool => tool.id === id)!);
   const toolPage = (id: Tool) => pages.find(item => item.tool === id && item.path !== "/")!;
-  function moveTool(id: Tool, direction: -1 | 1) {
-    setP(prev => {
-      const order = [...prev.toolOrder], index = order.indexOf(id), next = index + direction;
-      if (index < 0 || next < 0 || next >= order.length) return prev;
-      [order[index], order[next]] = [order[next], order[index]];
-      return { ...prev, toolOrder: order };
-    });
-  }
   const source = market(p.source),
     target = market(p.target);
   useEffect(() => {
@@ -433,34 +425,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
             <p className="section-kicker">
               {t("选择工具", "CHOOSE A TOOL")}
             </p>
-            <nav aria-label={t("换算工具", "Conversion tools")}>
-              {orderedTools.map((tool) => (
-                <a
-                  href={toolPage(tool.id).path}
-                  key={tool.id}
-                  className={active === tool.id ? "active" : ""}
-                  aria-current={active === tool.id ? "page" : undefined}
-                >
-                  <span className="tool-icon" aria-hidden="true">
-                    <Icon name={tool.id === "cubic" ? "specs" : tool.id === "dimensions" ? "length" : tool.id} />
-                  </span>
-                  <span>{tool[p.locale]}</span>
-                  <span className="nav-arrow" aria-hidden="true">↗</span>
-                </a>
-              ))}
-            </nav>
-            <details className="tool-order">
-              <summary>{t("调整排序", "Customize order")}</summary>
-              <p>{storage ? t("点击箭头调整，自动保存到当前浏览器。", "Use the arrows. Saved automatically in this browser.") : t("浏览器存储不可用，排序仅在本页有效。", "Browser storage is unavailable. Order applies to this page only.")}</p>
-              <ol aria-label={t("工具排序", "Tool order")}>
-                {orderedTools.map((tool, index) => <li key={tool.id}>
-                  <span>{index + 1}. {tool[p.locale]}</span>
-                  <button type="button" disabled={index === 0} aria-label={t(`上移${tool.zh}`, `Move ${tool.en} up`)} onClick={() => moveTool(tool.id, -1)}>↑</button>
-                  <button type="button" disabled={index === orderedTools.length - 1} aria-label={t(`下移${tool.zh}`, `Move ${tool.en} down`)} onClick={() => moveTool(tool.id, 1)}>↓</button>
-                </li>)}
-              </ol>
-              <button type="button" className="order-reset" onClick={() => setP(prev => ({ ...prev, toolOrder: [...defaultToolOrder] }))}>{t("恢复默认排序", "Reset default order")}</button>
-            </details>
+            <ToolNavigation items={orderedTools} active={active} zh={zh} storage={storage} onOrder={toolOrder => setP(prev => ({ ...prev, toolOrder }))} />
             <div className="sidebar-note">
               <img
                 src="/brand/uniport-logo-transparent-white.svg"

@@ -1459,20 +1459,14 @@ th { background: #ecefe5; }
 .fx-metadata details { padding: 8px 0; }
 .currency-tool .result-card h3 { overflow-wrap: anywhere; }
 
-.tool-order { margin-top: 14px; border-top: 1px solid #414538; padding-top: 14px; }
-.tool-order summary { cursor: pointer; font-size: 12px; padding: 8px; color: var(--lime); }
-.tool-order p { color: #c8cbbf; font-size: 11px; line-height: 1.7; margin: 10px 6px; }
-.tool-order ol { list-style: none; padding: 0; margin: 0; display: grid; gap: 6px; }
-.tool-order li { display: flex; align-items: center; gap: 4px; font-size: 12px; min-width: 0; }
-.tool-order li span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
-.tool-order button { background: #292c22; color: var(--cloud); border: 1px solid #53584a; border-radius: 6px; min-width: 36px; min-height: 36px; cursor: pointer; }
-.tool-order button:hover:not(:disabled) { background: #414538; }
-.tool-order button:disabled { opacity: .3; cursor: default; }
-.tool-order button:focus-visible, .tool-order summary:focus-visible { outline: 2px solid var(--lime); outline-offset: 2px; }
-.tool-order .order-reset { margin-top: 12px; width: 100%; font-size: 12px; }
-@media (max-width: 720px) {
-  .tool-order { padding-top: 6px; margin-top: 6px; }
-  .tool-order li { font-size: 14px; }
-  .tool-order button { min-width: 44px; min-height: 44px; }
-  .quick-start a small { overflow-wrap: anywhere; }
-}
+.order-toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 12px; }
+.order-toolbar button { padding: 8px 10px; border: 1px solid #53584a; border-radius: 8px; color: var(--lime); background: transparent; min-height: 36px; font-size: 12px; cursor: pointer; }
+.order-help { color: #c8cbbf; font-size: 12px; line-height: 1.6; margin: 0 0 12px; }
+.sidebar nav.sorting-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); overflow: visible; gap: 8px; }
+.sidebar nav .sort-card { touch-action: none; user-select: none; cursor: grab; display: flex; flex-direction: column; justify-content: center; gap: 7px; min-height: 90px; width: 100%; padding: 10px 5px; color: var(--cloud); background: #292c22; border: 1px dashed #747d62; text-align: center; font-size: 12px; }
+.sidebar nav .sort-card.dragging { opacity: .4; border-color: var(--lime); }
+.sidebar nav .sort-card:active { cursor: grabbing; }
+.sort-number { color: var(--lime); font-size: 10px; }
+.sort-ghost { position: fixed; z-index: 1000; pointer-events: none; max-width: 180px; padding: 14px 20px; background: var(--lime); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 30px #0004; font-size: 14px; transform: rotate(2deg); }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
+@media (max-width:720px) { .sidebar nav.sorting-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } .order-toolbar { margin-bottom: 8px; } .quick-start a small { overflow-wrap: anywhere; } }
