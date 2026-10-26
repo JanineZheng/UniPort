@@ -871,10 +871,10 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
             <span>◈</span>
             <p>
               <strong>
-                {t("你的数据，留在本地", "Your data stays local")}
+                {t("换算数据，留在本地", "Your calculations stay local")}
               </strong>
               <small>
-                {t("无账号，无数据上传", "No account. No data uploads.")}
+                {t("无需账号，不上传换算输入", "No account. Conversion inputs stay local.")}
               </small>
             </p>
           </div>
@@ -900,6 +900,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
           </span>
           <span>
             {t("免费使用 · 无需注册", "Free to use · No sign-up")}
+            {" · "}<a href="/privacy.html">{t("隐私与访问统计", "Privacy & analytics")}</a>
           </span>
         </footer>
       </main>

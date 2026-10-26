@@ -90,7 +90,9 @@ src/
 
 ### 隐私与浏览器
 
-无分析脚本、外部字体或账号。汇率工具通过 HTTPS 请求 Frankfurter，仅发送货币对，不发送金额或商品数据；其他换算不联网。偏好存储在 `unitport.preferences.v1`；商品数据只在内存。清除网站数据会删除偏好，跨设备不自动同步。Clipboard API 需要 HTTPS 或 localhost 和浏览器授权；失败可选中结果手动复制。目标为当前主流浏览器，要求 BigInt、Intl timeZone 和 CSS Grid。
+无需账号，无外部字体。正式域名使用 Google Analytics 4（`G-6HWESBP7VK`）统计访问与互动；`public/analytics.js` 仅在 `uniport.janine-cheng22.workers.dev` 加载 Google tag，本地与预览环境不发送统计。代码不发送换算输入、金额、商品规格或复制结果，并关闭 Google Signals 与广告个性化信号。所有工具页共享同一个统计入口；不应再添加第二份 GA/GTM 安装代码。隐私说明为 `/privacy.html`。
+
+汇率工具通过 HTTPS 请求 Frankfurter，仅发送货币对，不发送金额或商品数据；其他换算在浏览器内完成。偏好存储在 `unitport.preferences.v1`；商品数据只在内存。清除网站数据会删除偏好，跨设备不自动同步。Clipboard API 需要 HTTPS 或 localhost 和浏览器授权；失败可选中结果手动复制。目标为当前主流浏览器，要求 BigInt、Intl timeZone 和 CSS Grid。
 
 ## 品牌 UI
 
