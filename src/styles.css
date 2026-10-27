@@ -1470,3 +1470,43 @@ th { background: #ecefe5; }
 .sort-ghost { position: fixed; z-index: 1000; pointer-events: none; max-width: 180px; padding: 14px 20px; background: var(--lime); color: var(--ink); border-radius: 10px; box-shadow: 0 8px 30px #0004; font-size: 14px; transform: rotate(2deg); }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 @media (max-width:720px) { .sidebar nav.sorting-grid { grid-template-columns: repeat(3,minmax(0,1fr)); } .order-toolbar { margin-bottom: 8px; } .quick-start a small { overflow-wrap: anywhere; } }
+
+/* Keep direction controls between the fields they affect and results beside the task. */
+.pair-selectors {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr);
+  align-items: end;
+  gap: 12px;
+}
+.pair-swap, .swap {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #cfd3c6;
+  border-radius: 10px;
+  background: white;
+  color: var(--ink);
+  flex-shrink: 0;
+}
+.pair-swap:hover, .swap:hover { background: var(--lime); border-color: #8a9e4d; }
+.conversion-grid { grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); gap: 10px; }
+.currency-tool { gap: 16px; }
+.currency-tool > .context-note { margin: 0; }
+.fx-amount-row { display: flex; align-items: end; gap: 12px; }
+.fx-amount-row .field { flex: 1; }
+.fx-amount-row input { font-size: 24px; font-variant-numeric: tabular-nums; }
+.fx-amount-row .secondary { min-height: 48px; }
+.fx-result-card h3 { font-size: clamp(28px, 4vw, 42px); line-height: 1.25; margin: 12px 0; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+.fx-rate { margin: 0 0 14px; font-size: 13px; }
+.fx-metadata { font-size: 12px; border-top: 1px solid var(--border); padding-top: 8px; }
+@media (max-width:720px) {
+  .pair-selectors { grid-template-columns: minmax(0, 1fr) 44px minmax(0, 1fr); gap: 8px; }
+  .pair-selectors select { font-size: 11px; padding: 11px 6px; }
+  .pair-selectors .field > span { font-size: 10px; }
+  .conversion-grid { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 44px; }
+  .conversion-grid .swap { position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%); width: 44px; height: 44px; margin: 0; }
+  .conversion-grid .number-input, .conversion-grid .result-number { font-size: 30px; }
+  .fx-amount-row { gap: 8px; }
+  .fx-amount-row .secondary { padding: 12px; font-size: 11px; }
+}

@@ -581,7 +581,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
             )}
             {active === "specs" && (
               <>
-                <div className="spec-unit-grid">
+                <div className="spec-unit-grid pair-selectors">
                   <UnitSelect
                     category="length"
                     value={p.pairs.length.from}
@@ -589,6 +589,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                     label={t("原始尺寸单位", "Source dimensions")}
                     locale={p.locale}
                   />
+                  <button className="pair-swap" aria-label={t("交换尺寸单位", "Swap dimension units")} onClick={() => setP(prev => ({ ...prev, pairs: { ...prev.pairs, length: { from: prev.pairs.length.to, to: prev.pairs.length.from } } }))}><Icon name="swap" /></button>
                   <UnitSelect
                     category="length"
                     value={p.pairs.length.to}
@@ -603,6 +604,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                     label={t("原始重量单位", "Source weight")}
                     locale={p.locale}
                   />
+                  <button className="pair-swap" aria-label={t("交换重量单位", "Swap weight units")} onClick={() => setP(prev => ({ ...prev, pairs: { ...prev.pairs, weight: { from: prev.pairs.weight.to, to: prev.pairs.weight.from } } }))}><Icon name="swap" /></button>
                   <UnitSelect
                     category="weight"
                     value={p.pairs.weight.to}
@@ -695,7 +697,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
             )}
             {active === "time" && (
               <>
-                <div className="timezone-grid">
+                <div className="timezone-grid pair-selectors">
                   <label className="field">
                     <span>{t("出发城市", "Source city")}</span>
                     <select
@@ -713,6 +715,10 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                       ))}
                     </select>
                   </label>
+                  <button className="pair-swap" aria-label={t("交换城市", "Swap cities")} onClick={() => {
+                    setP(prev => ({ ...prev, source: prev.target, target: prev.source, sourceZone: prev.targetZone, targetZone: prev.sourceZone }));
+                    setOccurrence("");
+                  }}><Icon name="swap" /></button>
                   <label className="field">
                     <span>{t("目标城市", "Target city")}</span>
                     <select
@@ -843,7 +849,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 </div>
               </>
             )}
-            {active === "currency" && <CurrencyTool key={`${source.currency}-${target.currency}`} source={source.currency} target={target.currency} zh={zh} precision={p.precision} />}
+            {active === "currency" && <CurrencyTool key={`${source.currency}-${target.currency}`} source={source.currency} target={target.currency} zh={zh} precision={p.precision} copy={copy} />}
           </section>
         </div>
         <section className="learn-section" aria-label={t("换算指南", "Conversion guide")}>

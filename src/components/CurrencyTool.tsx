@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
+import Icon from "./Icon";
 import { markets } from "../config/markets";
 import { convertCurrency, fetchQuote, FX_REFRESH_MS, FX_SOURCE, FX_SOURCE_URL, isFxStale } from "../core/currency";
 import type { FxQuote } from "../core/currency";
 
 const currencies = [...new Set(markets.map(m => m.currency))];
 type QuoteState = { pair: string; status: "loading" | "ready" | "error"; quote?: FxQuote; error?: string };
-export default function CurrencyTool({ source, target, zh, precision }: { source: string; target: string; zh: boolean; precision: number }) {
+export default function CurrencyTool({ source, target, zh, precision, copy }: { source: string; target: string; zh: boolean; precision: number; copy: (text: string) => void }) {
   const [base, setBase] = useState(source), [counter, setCounter] = useState(target);
   const [amount, setAmount] = useState("100"), [refresh, setRefresh] = useState(0);
   const [now, setNow] = useState(Date.now);
@@ -48,16 +49,22 @@ export default function CurrencyTool({ source, target, zh, precision }: { source
   }).format(ms);
   return <div className="currency-tool">
     <p className="context-note">{t("每日参考汇率 · 非实时行情 · 银行及支付平台成交汇率可能不同。", "Daily reference rates · Not live market prices · Bank and payment-provider rates may differ.")}</p>
-    <div className="timezone-grid">
+    <div className="pair-selectors">
       <label className="field"><span>{t("原始货币", "Source currency")}</span><select aria-label={t("原始货币", "Source currency")} value={base} onChange={e => setBase(e.target.value)}>{currencies.map(c => <option key={c}>{c}</option>)}</select></label>
+      <button className="pair-swap" aria-label={t("交换货币", "Swap currencies")} title={t("交换货币", "Swap currencies")} onClick={() => { setBase(counter); setCounter(base); }}><Icon name="swap" /></button>
       <label className="field"><span>{t("目标货币", "Target currency")}</span><select aria-label={t("目标货币", "Target currency")} value={counter} onChange={e => setCounter(e.target.value)}>{currencies.map(c => <option key={c}>{c}</option>)}</select></label>
     </div>
-    <div className="time-entry">
+    <div className="fx-amount-row">
       <label className="field"><span>{t("金额", "Amount")}</span><input inputMode="decimal" value={amount} onChange={e => setAmount(e.target.value)} maxLength={100} aria-invalid={!!inputError} /></label>
-      <button className="secondary" onClick={() => { setBase(counter); setCounter(base); }}>{t("交换货币", "Swap currencies")}</button>
       <button className="secondary" disabled={same || current?.status === "loading"} onClick={() => setRefresh(n => n + 1)}>{t("刷新汇率", "Refresh rate")}</button>
     </div>
     {inputError && <p className="error" role="alert">{inputError}</p>}
+    <div className="result-card fx-result-card">
+      <span className="mini-label">{t("参考换算结果", "REFERENCE CONVERSION")}</span>
+      <h3 aria-live="polite" data-testid="fx-result">{result ? `${result} ${counter}` : "—"}</h3>
+      {quote && !stale && <p className="fx-rate">1 {base} = {quote.rate} {counter}</p>}
+      <button className="primary" disabled={!result} onClick={() => copy(`${result} ${counter}`)}><Icon name="copy" /> {t("复制结果", "Copy result")}</button>
+    </div>
     {same ? <p role="status">{t("相同货币，按 1:1 换算，无需汇率数据。", "Same currency: 1:1 conversion; no exchange-rate data needed.")}</p> : <>
       {(!current || current.status === "loading") && <p role="status">{t("正在获取参考汇率…", "Fetching reference rate…")}</p>}
       {current?.status === "error" && <p className="error" role="alert">{current.error === "timeout" ? t("汇率请求超时。", "The rate request timed out.") : current.error === "unavailable" ? t("数据源暂不支持此货币对。", "This currency pair is unavailable from the provider.") : current.error === "invalid" ? t("汇率数据无效或日期异常。", "The rate data or its date is invalid.") : t("汇率请求失败，请检查网络。", "Could not fetch the rate. Check your connection.")} {t("已停止输出换算结果，请点击刷新重试。", "Conversion is unavailable. Click Refresh rate to retry.")}</p>}
@@ -67,10 +74,8 @@ export default function CurrencyTool({ source, target, zh, precision }: { source
         {quote.providers.length > 0 && <details><summary>{t("查看底层来源代码", "View underlying provider codes")}</summary><p>{quote.providers.join(", ")}</p></details>}
         <p>{t("数据更新日期：", "Rate date: ")}<time dateTime={quote.asOf}>{quote.asOf}</time>{t("（源站仅提供日期，不提供精确发布时间）", " (the provider supplies a date, not an exact publication time)")}</p>
         <p>{t("本次获取时间：", "Retrieved at: ")}<time dateTime={new Date(quote.fetchedAt).toISOString()}>{displayTime(quote.fetchedAt)}</time></p>
-        {!stale && <p>1 {base} = {quote.rate} {counter}</p>}
       </div>}
     </>}
-    <div className="time-result result-card"><span className="mini-label">{t("参考换算结果", "REFERENCE CONVERSION")}</span><h3 aria-live="polite" data-testid="fx-result">{result ? `${result} ${counter}` : "—"}</h3></div>
     <p className="context-note">{t("每 15 分钟自动重新获取；回到页面或恢复联网时重试。周末、节假日可能沿用前一工作日数据，以数据更新日期为准。金额在本地计算，仅向数据源请求货币对。", "Checks every 15 minutes and retries when you return or reconnect. Weekends and holidays may use the previous business day’s rate; check the rate date. Amounts stay local; only the currency pair is requested.")}</p>
   </div>;
 }
