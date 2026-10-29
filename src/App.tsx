@@ -16,6 +16,7 @@ import UnitSelect from "./components/UnitSelect";
 import Icon from "./components/Icon";
 import ShippingTool from "./components/ShippingTool";
 import CurrencyTool from "./components/CurrencyTool";
+import ExtensionPreview from "./components/ExtensionPreview";
 import { pages, pageFor } from "./config/pages";
 
 import ToolNavigation from "./components/ToolNavigation";
@@ -304,14 +305,14 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
         </div>
       </header>
       <main className="layout">
-        <section className="intro">
-          <div>
+        <section className={`intro${page.path === "/" ? " extension-hero" : ""}`}>
+          <div className="hero-copy">
             <p className="eyebrow">FREE TOOLS / PRODUCT & SHIPPING CONVERSIONS</p>
             <h1>
-              {zh ? page.zh : page.heading}
+              {page.path === "/" ? t("不用切换页面，跨境换算就在手边", "Keep your page. Convert in the side panel.") : zh ? page.zh : page.heading}
             </h1>
             <p>
-              {active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
+              {page.path === "/" ? t("查看商品、核对包装尺寸时，在 Chrome 侧边栏完成换算并复制英文规格。", "Check product dimensions and weight, convert in Chrome, and copy English specs. All beside the page you're working on.") : active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
                 "厘米转英寸、千克转磅、箱子体积计算。输入即出结果，一键复制。",
                 "Dimensions, weight, box volume. Enter your numbers. Copy your answer.",
               )}
@@ -322,16 +323,17 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 href="https://chromewebstore.google.com/detail/hphdocmdhgikhcjniljgdjideefnjbne"
                 target="_blank"
                 rel="noopener noreferrer"
-                aria-label={t("免费添加到 Chrome（在新标签页打开）", "Add to Chrome — Free (opens in a new tab)")}
+                aria-label={t("免费安装 Chrome 插件（在新标签页打开）", "Add to Chrome — Free (opens in a new tab)")}
               >
                 <Icon name="globe" />
-                {t("免费添加到 Chrome", "Add to Chrome — Free")}
+                {t("免费安装 Chrome 插件", "Add to Chrome — Free")}
                 <Icon name="arrow" />
               </a>
-              <span className="extension-cta-note">{t("在网页旁随手换算 · 无需登录", "Convert alongside any webpage · No sign-in")}</span>
+              {page.path === "/" && <a className="hero-web-link" href="#workspace">{t("直接使用网页版", "Try the web tools")} <Icon name="arrow" /></a>}
+              <span className="extension-cta-note">{t("免费使用 · 无需登录 · 本地换算", "Free to use · No sign-in · Local calculations")}</span>
             </div>
           </div>
-          <div className="intro-art" aria-hidden="true">
+          {page.path === "/" ? <ExtensionPreview zh={zh} /> : <div className="intro-art" aria-hidden="true">
             <span className="unit-chip chip-from">{active === "currency" ? source.currency : "cm"}</span>
             <div className="intro-logo">
               <img
@@ -345,7 +347,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               {active === "currency" ? target.currency : "in"} <Icon name="arrow" />
             </span>
             <small>LOCAL UNITS. GLOBAL POSSIBILITIES.</small>
-          </div>
+          </div>}
         </section>
         {page.path === "/" && <div className="quick-start" aria-label={t("快捷工具", "Quick tools")}>
           {orderedTools.slice(0, 3).map(tool => <a key={tool.id} href={toolPage(tool.id).path}><Icon name={tool.id === "cubic" ? "specs" : tool.id === "dimensions" ? "length" : tool.id} /><span><strong>{tool[p.locale]}</strong><small>{zh ? tool.detail : tool.detailEn}</small></span><b>↗</b></a>)}

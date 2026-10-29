@@ -1520,7 +1520,16 @@ th { background: #ecefe5; }
 }
 .extension-install {
   text-decoration: none;
+  background: var(--lime);
+  color: var(--ink);
+  border-color: #b0ca58;
+  min-height: 50px;
+  padding: 14px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  box-shadow: 0 3px 0 var(--ink);
 }
+.extension-install:hover:not(:disabled) { background: #c7ef4f; color: var(--ink); }
 .extension-cta-note {
   color: var(--text-secondary);
   font-size: 12px;
@@ -1529,4 +1538,56 @@ th { background: #ecefe5; }
 @media (max-width: 720px) {
   .extension-cta { gap: 8px 12px; margin-top: 12px; }
   .extension-cta-note { font-size: 11px; }
+}
+
+/* Installation-first home hero with a real extension screenshot. */
+.primary.extension-install { background: var(--lime); color: var(--ink); border-color: #b0ca58; min-height: 50px; font-size: 14px; padding: 14px 20px; font-weight: 700; }
+.primary.extension-install:hover { background: #c7ef4f; color: var(--ink); }
+.extension-hero { display: grid; grid-template-columns: 1.05fr 1fr; gap: 40px; align-items: center; padding-bottom: 30px; }
+.extension-hero .hero-copy { min-width: 0; }
+.extension-hero h1 { font-size: clamp(32px, 3.4vw, 46px); line-height: 1.15; letter-spacing: -1.5px; max-width: 560px; }
+.extension-hero p:not(.eyebrow) { max-width: 470px; font-size: 14px; line-height: 1.8; }
+.extension-hero .extension-cta { margin-top: 24px; }
+.extension-hero .extension-cta-note { flex-basis: 100%; font-size: 12px; margin-top: 5px; }
+.hero-web-link { display: inline-flex; align-items: center; gap: 6px; padding: 12px 0; font-size: 13px; text-underline-offset: 4px; }
+.hero-web-link .icon { width: 16px; height: 16px; }
+.extension-preview { width: 100%; max-width: 440px; justify-self: end; min-width: 0; margin: 0; overflow: hidden; background: white; border: 1px solid #c9cdbf; border-radius: 14px; box-shadow: 0 10px 28px #0f0f0f0a; }
+.preview-browser { display: flex; align-items: center; gap: 5px; background: #eceee6; padding: 12px; border-bottom: 1px solid var(--border); }
+.preview-browser > span { width: 6px; height: 6px; border-radius: 50%; background: #afb5a4; }
+.preview-browser b { margin-left: 8px; font-size: 10px; font-weight: 500; color: #505648; }
+.preview-workspace { display: grid; grid-template-columns: .82fr 1.18fr; background: #f7f7f5; }
+.preview-product { min-width: 0; padding: 24px 15px; background: white; border-right: 1px solid var(--border); }
+.preview-label { display: block; color: #717571; font-size: 9px; letter-spacing: .7px; line-height: 1.6; }
+.preview-product > strong { display: block; font-size: 17px; margin-top: 12px; }
+.preview-product dl { margin: 20px 0; }
+.preview-product dl > div { margin-bottom: 16px; }
+.preview-product dt { font-size: 10px; color: #717571; }
+.preview-product dd { margin: 5px 0 0; font-size: 12px; font-weight: 600; }
+.preview-paste { font-size: 11px; line-height: 1.6; margin: 0 0 8px; }
+.preview-product code { display: block; font-size: 10px; line-height: 1.8; overflow-wrap: anywhere; padding: 8px; border: 1px dashed #bec5ae; border-radius: 6px; background: #f7f7f5; }
+.preview-result-label { display: block; margin-top: 24px; font-size: 10px; color: #59633f; }
+.extension-hero .preview-product p { background: var(--lime); padding: 10px; border-radius: 6px; font-size: 13px; line-height: 1.7; margin-top: 8px; color: var(--ink); }
+.preview-panel { position: relative; min-width: 0; aspect-ratio: 360 / 580; overflow: hidden; }
+.preview-panel img { position: absolute; top: 0; left: 0; display: block; width: 100%; height: auto; transform: translateY(-26.5%); }
+.extension-preview figcaption { border-top: 1px solid var(--border); padding: 10px 12px; color: #717571; font-size: 9px; line-height: 1.6; }
+@media (max-width: 1040px) and (min-width: 721px) {
+  .extension-hero { gap: 24px; }
+  .preview-product { padding: 16px 10px; }
+  .preview-result-label { margin-top: 14px; }
+}
+@media (max-width: 720px) {
+  .extension-hero { display: flex; flex-direction: column; align-items: stretch; gap: 22px; padding-bottom: 24px; }
+  .extension-hero h1 { font-size: 34px; max-width: 500px; }
+  .extension-hero p:not(.eyebrow) { font-size: 13px; }
+  .extension-hero .extension-cta { margin-top: 18px; gap: 8px 16px; }
+  .extension-install { min-height: 48px; font-size: 13px; padding: 12px 16px; }
+  .hero-web-link { font-size: 12px; }
+  .extension-preview { max-width: 500px; align-self: center; }
+  .preview-product { padding: 18px 12px; }
+  .preview-product > strong { font-size: 15px; margin-top: 8px; }
+  .preview-product dl { margin: 14px 0; }
+  .preview-product dl > div { margin-bottom: 12px; }
+  .preview-product dd { font-size: 11px; }
+  .preview-result-label { margin-top: 14px; }
+  .extension-hero .preview-product p { font-size: 11px; padding: 7px; }
 }
