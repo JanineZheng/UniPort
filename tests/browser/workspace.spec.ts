@@ -1,7 +1,8 @@
 import { test, expect } from '@playwright/test';
 test('English-first home, local language preference and no horizontal overflow', async ({page}) => {
   await page.goto('/');
-  await expect(page.getByRole('heading',{level:1})).toHaveText('Convert units. Get shipping-ready.');
+  await expect(page.getByRole('heading',{level:1})).toHaveText('Keep your page. Convert in the side panel.');
+  await page.goto('/cm-to-inches');
   await page.getByRole('button',{name:'25.4 cm',exact:true}).click();
   await expect(page.locator('.result-number')).toHaveText('10in');
   await page.getByRole('button',{name:'切换到中文'}).click();
@@ -63,3 +64,4 @@ test('blocked local storage still allows conversions', async ({page}) => {
   await page.getByLabel('Enter value',{exact:true}).fill('2.54');
   await expect(page.locator('.result-number')).toHaveText('1in');
 });
+

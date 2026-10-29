@@ -676,7 +676,9 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                             {row.sku}: {errorText(row.error)}
                           </p>
                         ) : (
-                          <p>{row.text}</p>
+                          <p>{row.sku}{row.text?.slice(row.sku.length).split(/(\d+(?:\.\d+)?(?: × \d+(?:\.\d+)?)* [a-zA-Z³°]+)/g).map((part, i) =>
+                            i % 2 ? <strong className="spec-value" key={i}>{part}</strong> : part
+                          )}</p>
                         )}
                       </div>
                     ))
@@ -829,10 +831,15 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                   <span className="mini-label">
                     {t("目标城市当地时间", "TARGET LOCAL TIME")}
                   </span>
-                  <h3 aria-live="polite">
-                    {instant !== undefined
-                      ? describeTime(instant, p.targetZone, p.locale)
-                      : "—"}
+                  <h3 className="time-display" aria-live="polite" aria-atomic="true">
+                    {instant !== undefined ? <>
+                      <span className="time-date">{new Intl.DateTimeFormat(zh ? "zh-CN" : "en-GB", {
+                        timeZone: p.targetZone, dateStyle: "full",
+                      }).format(instant)}</span>
+                      <strong className="time-clock">{new Intl.DateTimeFormat(zh ? "zh-CN" : "en-GB", {
+                        timeZone: p.targetZone, hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+                      }).format(instant)}</strong>
+                    </> : "—"}
                   </h3>
                   <p>
                     {p.targetZone}

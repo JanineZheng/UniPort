@@ -61,7 +61,7 @@ export default function CurrencyTool({ source, target, zh, precision, copy }: { 
     {inputError && <p className="error" role="alert">{inputError}</p>}
     <div className="result-card fx-result-card">
       <span className="mini-label">{t("参考换算结果", "REFERENCE CONVERSION")}</span>
-      <h3 aria-live="polite" data-testid="fx-result">{result ? `${result} ${counter}` : "—"}</h3>
+      <h3 aria-live="polite" data-testid="fx-result">{result ? <>{result} <small className="result-unit">{counter}</small></> : "—"}</h3>
       {quote && !stale && <p className="fx-rate">1 {base} = {quote.rate} {counter}</p>}
       <button className="primary" disabled={!result} onClick={() => copy(`${result} ${counter}`)}><Icon name="copy" /> {t("复制结果", "Copy result")}</button>
     </div>
@@ -79,3 +79,4 @@ export default function CurrencyTool({ source, target, zh, precision, copy }: { 
     <p className="context-note">{t("每 15 分钟自动重新获取；回到页面或恢复联网时重试。周末、节假日可能沿用前一工作日数据，以数据更新日期为准。金额在本地计算，仅向数据源请求货币对。", "Checks every 15 minutes and retries when you return or reconnect. Weekends and holidays may use the previous business day’s rate; check the rate date. Amounts stay local; only the currency pair is requested.")}</p>
   </div>;
 }
+

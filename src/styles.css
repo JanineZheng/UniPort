@@ -10,6 +10,7 @@
     sans-serif;
   --lime: #d9ff6b;
   --ink: #0f0f0f;
+  --result-ink: #173c8f;
   --cloud: #f7f7f5;
   --slate: #717571;
   --text-secondary: #626660;
@@ -1590,4 +1591,51 @@ th { background: #ecefe5; }
   .preview-product dd { font-size: 11px; }
   .preview-result-label { margin-top: 14px; }
   .extension-hero .preview-product p { font-size: 11px; padding: 7px; }
+}
+
+
+/* Shared result hierarchy for the website and extension. */
+.result-number,
+.shipping-number,
+.fx-result-card h3 {
+  color: var(--result-ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.result-number > span,
+.shipping-number small,
+.result-unit {
+  color: #3f4b28;
+  font-size: .48em;
+  font-weight: 500;
+  letter-spacing: 0;
+}
+.time-result .time-display {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 16px 0 12px;
+  letter-spacing: 0;
+}
+.time-date {
+  color: #344027;
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+.time-clock {
+  display: block;
+  color: var(--result-ink);
+  font-size: clamp(38px, 6vw, 52px);
+  font-weight: 750;
+  line-height: 1.15;
+  letter-spacing: -1px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.spec-value {
+  color: var(--result-ink);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
 }
