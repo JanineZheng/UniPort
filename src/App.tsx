@@ -316,6 +316,20 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 "Dimensions, weight, box volume. Enter your numbers. Copy your answer.",
               )}
             </p>
+            <div className="extension-cta">
+              <a
+                className="primary extension-install"
+                href="https://chromewebstore.google.com/detail/hphdocmdhgikhcjniljgdjideefnjbne"
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={t("免费添加到 Chrome（在新标签页打开）", "Add to Chrome — Free (opens in a new tab)")}
+              >
+                <Icon name="globe" />
+                {t("免费添加到 Chrome", "Add to Chrome — Free")}
+                <Icon name="arrow" />
+              </a>
+              <span className="extension-cta-note">{t("在网页旁随手换算 · 无需登录", "Convert alongside any webpage · No sign-in")}</span>
+            </div>
           </div>
           <div className="intro-art" aria-hidden="true">
             <span className="unit-chip chip-from">{active === "currency" ? source.currency : "cm"}</span>
