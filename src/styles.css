@@ -1510,3 +1510,23 @@ th { background: #ecefe5; }
   .fx-amount-row { gap: 8px; }
   .fx-amount-row .secondary { padding: 12px; font-size: 11px; }
 }
+
+.extension-cta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 18px;
+}
+.extension-install {
+  text-decoration: none;
+}
+.extension-cta-note {
+  color: var(--text-secondary);
+  font-size: 12px;
+  line-height: 1.6;
+}
+@media (max-width: 720px) {
+  .extension-cta { gap: 8px 12px; margin-top: 12px; }
+  .extension-cta-note { font-size: 11px; }
+}
