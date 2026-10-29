@@ -9,7 +9,7 @@ for (const entry of pages) {
       const response = await staticPage.goto(new URL(entry.path, testInfo.project.use.baseURL).href);
       expect(response?.status()).toBe(200);
       await expect(staticPage).toHaveTitle(entry.title);
-      await expect(staticPage.getByRole("heading", { level: 1 })).toHaveText(entry.heading);
+      await expect(staticPage.getByRole("heading", { level: 1 })).toHaveText(entry.path === "/" ? "Keep your page. Convert in the side panel." : entry.heading);
       await expect(staticPage.locator('meta[name="description"]')).toHaveAttribute("content", entry.description);
       await expect(staticPage.locator('meta[property="og:title"]')).toHaveAttribute("content", entry.title);
       await expect(staticPage.locator('meta[property="og:description"]')).toHaveAttribute("content", entry.description);
@@ -44,7 +44,7 @@ for (const entry of pages) {
     for (const locale of ["en", "zh"] as const) {
       if (locale === "zh") await page.getByRole("button", { name: "切换到中文" }).click();
       await expect(page.locator("html")).toHaveAttribute("lang", locale === "en" ? "en" : "zh-CN");
-      await expect(page.getByRole("heading", { level: 1 })).toHaveText(locale === "en" ? entry.heading : entry.zh);
+      await expect(page.getByRole("heading", { level: 1 })).toHaveText(entry.path === "/" ? (locale === "en" ? "Keep your page. Convert in the side panel." : "不用切换页面，跨境换算就在手边") : locale === "en" ? entry.heading : entry.zh);
       await expect(page.getByRole("navigation").locator('[aria-current="page"]')).toHaveCount(1);
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
       const links = page.getByRole("navigation").getByRole("link");
@@ -55,7 +55,7 @@ for (const entry of pages) {
       expect(await page.locator("img").evaluateAll(images => images.every(img => img.complete && img.naturalWidth > 0))).toBe(true);
       if (entry.path === "/" && locale === "en") {
         if (testInfo.project.name === "mobile") {
-          expect(await page.locator(".result-number").evaluate(el => el.getBoundingClientRect().bottom)).toBeLessThan(844);
+          expect(await page.locator(".extension-install").evaluate(el => el.getBoundingClientRect().bottom)).toBeLessThan(844);
         }
         await testInfo.attach("home-layout", { body: await page.screenshot({ fullPage: true }), contentType: "image/png" });
       }
@@ -81,3 +81,4 @@ test("unknown pages return 404 and known pages drop trailing slashes", async ({ 
   expect(redirect.status()).toBe(308);
   expect(redirect.headers().location).toBe("/cm-to-inches?example=1");
 });
+

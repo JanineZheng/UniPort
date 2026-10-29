@@ -111,6 +111,7 @@ test("unit overrides, market switching and language persist on the home page", a
   await expect(page.getByLabel("Target unit", { exact: true })).toHaveValue("cm");
   await page.getByRole("button", { name: "切换到中文" }).click();
   await page.reload();
-  await expect(page.getByRole("heading", { level: 1 })).toHaveText("尺寸、重量，一换就能用。");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveText("不用切换页面，跨境换算就在手边");
   await expect(page.getByRole("button", { name: "Switch to English" })).toBeVisible();
 });
+
