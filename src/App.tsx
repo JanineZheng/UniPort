@@ -942,7 +942,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
         </section>
         <footer>
           <span>
-            UnitPort <span className="footer-dot">/</span>{" "}
+            Uniport <span className="footer-dot">/</span>{" "}
             {t("让跨境，更进一步。", "A little closer to every market.")}
           </span>
           <span>

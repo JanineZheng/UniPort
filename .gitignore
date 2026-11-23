@@ -8,3 +8,6 @@ test-results/
 .DS_Store
 
 .prerender/
+
+# Local business metrics and review ledger
+docs/GROWTH-WEEK-1.md
