@@ -1,5 +1,5 @@
 import fs from 'node:fs/promises';
-import { renderPage, pages } from '../.prerender/prerender.js';
+import { renderPage, pages, guides } from '../.prerender/prerender.js';
 const template = await fs.readFile('dist/index.html', 'utf8');
 const escape = value => value.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;');
 let origin = '';
@@ -10,16 +10,18 @@ if (process.env.SITE_URL) {
   }
   origin = parsed.origin;
 }
-for (const page of pages) {
+const routes = [...pages, ...guides];
+for (const page of routes) {
   const canonical = origin ? `${origin}${page.path}` : '';
-  const schema = { '@context': 'https://schema.org', '@type': 'WebApplication', name: page.heading, description: page.description, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', isAccessibleForFree: true, ...(canonical ? { url: canonical } : {}) };
+  const isGuide = guides.some(guide => guide.path === page.path);
+  const schema = isGuide ? { '@context': 'https://schema.org', '@type': 'TechArticle', headline: page.heading, description: page.description, inLanguage: 'en', author: { '@type': 'Organization', name: 'Uniport' }, ...(canonical ? { url: canonical } : {}) } : { '@context': 'https://schema.org', '@type': 'WebApplication', name: page.heading, description: page.description, applicationCategory: 'UtilitiesApplication', operatingSystem: 'Any', isAccessibleForFree: true, ...(canonical ? { url: canonical } : {}) };
   let html = template.replace(/<title>[\s\S]*?<\/title>/, `<title>${escape(page.title)}</title>`)
     .replace(/(<meta\s+name="description"\s+content=")[^"]*("\s*\/>)/, `$1${escape(page.description)}$2`)
     .replace('<div id="root"></div>', `<div id="root">${renderPage(page.path)}</div>`)
-    .replace('</head>', `<meta property="og:type" content="website"/><meta property="og:title" content="${escape(page.title)}"/><meta property="og:description" content="${escape(page.description)}"/>${canonical ? `<link rel="canonical" href="${canonical}"/><meta property="og:url" content="${canonical}"/>` : ''}<script type="application/ld+json">${JSON.stringify(schema).replaceAll('<','\\u003c')}</script></head>`);
+    .replace('</head>', `<meta property="og:type" content="${isGuide ? 'article' : 'website'}"/><meta property="og:title" content="${escape(page.title)}"/><meta property="og:description" content="${escape(page.description)}"/>${canonical ? `<link rel="canonical" href="${canonical}"/><meta property="og:url" content="${canonical}"/>` : ''}<script type="application/ld+json">${JSON.stringify(schema).replaceAll('<','\\u003c')}</script></head>`);
   const directory = page.path === '/' ? 'dist' : `dist${page.path}`;
   await fs.mkdir(directory, {recursive:true}); await fs.writeFile(`${directory}/index.html`, html);
 }
 await fs.writeFile('dist/robots.txt', `User-agent: *\nAllow: /\n${origin ? `Sitemap: ${origin}/sitemap.xml\n` : ''}`);
-if (origin) await fs.writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${pages.map(p => `<url><loc>${origin}${p.path}</loc></url>`).join('')}</urlset>`);
-console.log(`Prerendered ${pages.length} pages. ${origin ? 'Canonical URLs and sitemap generated.' : 'Set SITE_URL to generate canonical URLs and sitemap for your production domain.'}`);
+if (origin) await fs.writeFile('dist/sitemap.xml', `<?xml version="1.0" encoding="UTF-8"?><urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">${routes.map(p => `<url><loc>${origin}${p.path}</loc></url>`).join('')}</urlset>`);
+console.log(`Prerendered ${routes.length} pages. ${origin ? 'Canonical URLs and sitemap generated.' : 'Set SITE_URL to generate canonical URLs and sitemap for your production domain.'}`);
