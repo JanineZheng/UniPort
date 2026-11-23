@@ -1639,3 +1639,29 @@ th { background: #ecefe5; }
   font-weight: 700;
   font-variant-numeric: tabular-nums;
 }
+
+/* Supplier workflow content stays below the converter. */
+.batch-help { margin-top: 28px; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.batch-help ol { padding-left: 22px; }
+.batch-help li { margin: 10px 0; }
+.batch-help details { border-top: 1px solid var(--border); padding: 14px 0; }
+.batch-help summary { cursor: pointer; font-weight: 600; }
+.batch-help p { line-height: 1.8; }
+.batch-help a, .guide-article a:not(.primary) { color: var(--result-ink); text-underline-offset: 3px; }
+.article-page { min-width: 0; }
+.guide-header-link { color: white; font-size: 13px; }
+.guide-article { max-width: 830px; padding: 36px 24px 64px; margin: auto; }
+.guide-article nav, .guide-byline { font-size: 12px; color: var(--text-secondary); }
+.guide-article .eyebrow { margin-top: 38px; }
+.guide-article h1 { font-size: clamp(30px, 4vw, 46px); line-height: 1.15; letter-spacing: -1.5px; margin: 12px 0 22px; }
+.guide-lead { font-size: 18px; line-height: 1.7; }
+.guide-article section { margin-top: 40px; }
+.guide-article h2 { font-size: 23px; letter-spacing: -.5px; line-height: 1.35; }
+.guide-article section p, .guide-article li { line-height: 1.85; color: #41453e; }
+.guide-article li { margin-bottom: 10px; }
+.guide-article ul { padding-left: 22px; }
+.guide-article pre { white-space: pre-wrap; overflow-wrap: anywhere; padding: 20px; border-left: 3px solid #a3be4c; background: #e9eddf; border-radius: 0 10px 10px 0; font-size: 13px; line-height: 1.9; }
+.guide-action { display: inline-flex; text-decoration: none; margin-top: 12px; }
+.guide-next { margin-top: 40px; padding: 24px; background: var(--surface); border: 1px solid var(--border); border-radius: 14px; }
+.article-page footer { max-width: 830px; margin: auto; padding: 24px; gap: 16px; }
+@media (max-width: 600px) { .article-page .topbar { padding: 0 18px; } .article-page .brand-logo { width: 120px; } .guide-header-link { max-width: 135px; text-align: right; } .guide-article { padding: 24px 18px 40px; } .batch-help { padding: 18px; } }

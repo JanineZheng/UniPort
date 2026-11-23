@@ -17,6 +17,7 @@ import Icon from "./components/Icon";
 import ShippingTool from "./components/ShippingTool";
 import CurrencyTool from "./components/CurrencyTool";
 import ExtensionPreview from "./components/ExtensionPreview";
+import BatchSpecsHelp from "./components/BatchSpecsHelp";
 import { pages, pageFor } from "./config/pages";
 
 import ToolNavigation from "./components/ToolNavigation";
@@ -323,7 +324,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               {page.path === "/" ? t("不用切换页面，跨境换算就在手边", "Keep your page. Convert in the side panel.") : zh ? page.zh : page.heading}
             </h1>
             <p>
-              {page.path === "/" ? t("查看商品、核对包装尺寸时，在 Chrome 侧边栏完成换算并复制英文规格。", "Check product dimensions and weight, convert in Chrome, and copy English specs. All beside the page you're working on.") : active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
+              {page.path === "/" ? t("查看商品、核对包装尺寸时，在 Chrome 侧边栏完成换算并复制英文规格。", "Check product dimensions and weight, convert in Chrome, and copy English specs. All beside the page you're working on.") : active === "specs" ? t("粘贴供应商表格中的长、宽、高和重量，最多 500 行。将 cm/kg 转为 in/lb，检查后复制带单位的英文规格。", "Paste up to 500 supplier rows of length, width, height and weight. Convert cm/kg to in/lb, review the results and copy English specs with units.") : active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
                 "厘米转英寸、千克转磅、箱子体积计算。输入即出结果，一键复制。",
                 "Dimensions, weight, box volume. Enter your numbers. Copy your answer.",
               )}
@@ -895,8 +896,9 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
         </div>
         <section className="learn-section" aria-label={t("换算指南", "Conversion guide")}>
           <div><p className="eyebrow">A LITTLE CONTEXT</p><h2>{t("怎么算，一眼明白。", "Know what you’re calculating.")}</h2><p>{t("先选工具，再输入数据；结果随输入自动更新。", "Choose a tool, enter your numbers and get an instant result.")}</p></div>
-          <div className="guide-grid"><article><h3>{t("计算方法", "How it works")}</h3><p>{page.formula}</p><code>{page.example}</code></article><article><h3>{active === "currency" ? t("参考汇率可以用于结算吗？", "Is this a settlement quote?") : t("结果可以直接用吗？", "Can I use these results in a listing?")}</h3><p>{active === "currency" ? t("仅供估算，不包含银行点差、手续费或支付平台加价。请以实际成交报价为准。", "For estimates only. Bank spreads, fees and payment-provider markups are excluded. Use your provider’s actual transaction quote for settlement.") : t("可以。复制尺寸或英文规格时会带上单位。小数位只影响显示；发布前请确认原始尺寸与单位。", "Yes. Copied dimensions and product specifications include units. Decimal places affect display only. Check source measurements and units before publishing.")}</p><h3>{t("需要账号吗？", "Do I need an account?")}</h3><p>{t("不需要。换算在浏览器内进行，不上传输入数据。", "No. Calculations run in your browser. Your input is not uploaded.")}</p></article></div>
+          <div className="guide-grid"><article><h3>{t("计算方法", "How it works")}</h3><p>{page.formula}</p><code>{page.example}</code></article><article><h3>{active === "currency" ? t("参考汇率可以用于结算吗？", "Is this a settlement quote?") : active === "specs" ? t("复制后还需要检查什么？", "What should I check before publishing?") : t("结果可以直接用吗？", "Can I use these results in a listing?")}</h3><p>{active === "currency" ? t("仅供估算，不包含银行点差、手续费或支付平台加价。请以实际成交报价为准。", "For estimates only. Bank spreads, fees and payment-provider markups are excluded. Use your provider’s actual transaction quote for settlement.") : active === "specs" ? t("确认原始单位、长宽高顺序与商品或包装的测量口径。输出为带单位的英文文本；请按目标平台字段要求填写。", "Check source units, dimension order and whether the measurements describe the product or its packaging. The output is English text with units; follow the destination’s field requirements.") : t("可以。复制尺寸或英文规格时会带上单位。小数位只影响显示；发布前请确认原始尺寸与单位。", "Yes. Copied dimensions and product specifications include units. Decimal places affect display only. Check source measurements and units before publishing.")}</p><h3>{t("需要账号吗？", "Do I need an account?")}</h3><p>{t("不需要。换算在浏览器内进行，不上传输入数据。", "No. Calculations run in your browser. Your input is not uploaded.")}</p></article></div>
           {page.tool === "length" && <div className="conversion-table"><h3>{t("厘米 / 英寸速查表", "Centimeters to inches table")}</h3><table><thead><tr><th>cm</th>{[1,5,10,25.4,50,100].map(n => <th key={n}>{n}</th>)}</tr></thead><tbody><tr><th>in</th>{[1,5,10,25.4,50,100].map(n => <td key={n}>{format(convert(String(n), "cm", "in"), 4)}</td>)}</tr></tbody></table></div>}
+          {!extension && page.tool === "specs" && <BatchSpecsHelp zh={zh} />}
           <div className="related-tools"><h3>{t("更多换算工具", "More conversion tools")}</h3><div>{orderedTools.map(tool => toolPage(tool.id)).filter(other => other.path !== page.path).map(other => <a key={other.path} href={other.path}>{zh ? other.zh : other.heading} <span aria-hidden="true">↗</span></a>)}</div></div>
         </section>
         <section className="trust-strip">

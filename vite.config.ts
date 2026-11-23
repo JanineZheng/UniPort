@@ -1,6 +1,8 @@
 import { readFile } from "node:fs/promises";
 import { defineConfig } from "vite";
 import { pages } from "./src/config/pages.ts";
+import { guides } from "./src/config/guides.ts";
+const routes = [...pages, ...guides];
 
 // Preview the same extensionless pages and slash rules as Workers Static Assets.
 export default defineConfig({
@@ -10,7 +12,7 @@ export default defineConfig({
     configureServer(server) {
       server.middlewares.use((req, _res, next) => {
         const url = new URL(req.url ?? "/", "http://localhost");
-        if (pages.some(page => page.path === url.pathname.replace(/\/$/, "") || page.path === url.pathname)) {
+        if (routes.some(page => page.path === url.pathname.replace(/\/$/, "") || page.path === url.pathname)) {
           req.url = `/index.html${url.search}`;
         }
         next();
@@ -20,7 +22,7 @@ export default defineConfig({
       server.middlewares.use(async (req, res, next) => {
         const url = new URL(req.url ?? "/", "http://localhost");
         const path = url.pathname.replace(/\/+$/, "") || "/";
-        if (pages.some(page => page.path === path)) {
+        if (routes.some(page => page.path === path)) {
           if (path !== url.pathname) {
             res.writeHead(308, { Location: `${path}${url.search}` });
             res.end();
