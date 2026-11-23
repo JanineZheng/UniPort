@@ -21,6 +21,7 @@ import { pages, pageFor } from "./config/pages";
 
 import ToolNavigation from "./components/ToolNavigation";
 import type { Tool } from "./config/toolOrder";
+import { sendUsageEvent, useUsageMeasurement } from "./useUsageMeasurement";
 const tools: {
   id: Tool;
   zh: string;
@@ -122,7 +123,7 @@ const errorMessages: Record<string, [string, string]> = {
     "Enter a valid date and time between 1900 and 2100.",
   ],
 };
-export default function App({ path = typeof window === "undefined" ? "/" : window.location.pathname }: { path?: string }) {
+export default function App({ path = typeof window === "undefined" ? "/" : window.location.pathname, extension = false }: { path?: string; extension?: boolean }) {
   const page = pageFor(path);
   const [initial] = useState(readPreferences);
   const [p, setP] = useState<Preferences>(() => {
@@ -217,6 +218,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
     try {
       await navigator.clipboard.writeText(text);
       setNotice(t("已复制到剪贴板", "Copied to clipboard"));
+      return true;
     } catch {
       setNotice(
         t(
@@ -224,6 +226,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
           "Copy failed. Select the result and copy manually.",
         ),
       );
+      return false;
     }
   }
   let output = "",
@@ -277,11 +280,19 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
     validRows.length > 0 && validRows.length === rows.length && !batchError;
   const textResult = validRows.map((r) => r.text).join("\n");
   const category = active as Category;
+  const ownsMeasurement = !["cubic", "dimensions", "currency"].includes(active);
+  const measurementValid = active === "specs" ? allValid : active === "time" ? instant !== undefined : !!output;
+  const measurement = useUsageMeasurement(
+    { tool: active, locale: p.locale, enabled: !extension && ownsMeasurement },
+    measurementValid,
+    active === "specs" ? textResult : active === "time" ? String(instant) : output,
+  );
+  const copyResult = (text: string) => measurement.recordCopy(() => copy(text));
   return (
     <fieldset className={`app-shell tool-${active}`} disabled={!interactive}>
       <a className="skip-link" href="#workspace">{t("跳至换算工具", "Skip to converter")}</a>
       <header className="topbar">
-        <a className="brand" href="/" aria-label="UnitPort home">
+        <a className="brand" href="/" aria-label="Uniport home">
           <img
             className="brand-logo"
             src="/brand/uniport-horizontal-transparent-white.svg"
@@ -323,6 +334,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 href="https://chromewebstore.google.com/detail/hphdocmdhgikhcjniljgdjideefnjbne"
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => sendUsageEvent("extension_store_click", "initial", { tool: active, locale: p.locale, enabled: !extension })}
                 aria-label={t("免费安装 Chrome 插件（在新标签页打开）", "Add to Chrome — Free (opens in a new tab)")}
               >
                 <Icon name="globe" />
@@ -458,7 +470,12 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               </p>
             </div>
           </aside>
-          <section className="tool-panel" aria-label={current[p.locale]}>
+          <section className="tool-panel" aria-label={current[p.locale]} onChangeCapture={event => {
+            if (!ownsMeasurement) return;
+            const element = event.target as HTMLInputElement;
+            if (element.tagName === "SELECT" || element.type === "radio") measurement.adjusted();
+            else if (element.tagName === "INPUT" || element.tagName === "TEXTAREA") measurement.changed();
+          }}>
             <div className="panel-heading">
               <div>
                 <span className="section-kicker">
@@ -487,10 +504,10 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 </label>
               )}
             </div>
-            {(active === "cubic" || active === "dimensions") && <ShippingTool key={active} mode={active} zh={zh} precision={p.precision} copy={copy} />}
+            {(active === "cubic" || active === "dimensions") && <ShippingTool key={active} mode={active} zh={zh} precision={p.precision} copy={copy} measure={!extension} />}
             {["length", "weight", "volume", "temperature"].includes(active) && (
               <>
-                <div className="example-row"><span>{t("试一试", "Try an example")}</span>{(active === "length" ? ["2.54", "25.4", "100"] : active === "weight" ? ["0.5", "1", "10"] : active === "temperature" ? ["0", "20", "100"] : ["100", "250", "500"]).map(n => <button key={n} onClick={() => setValue(n)}>{n} {unit(p.pairs[category].from).symbol}</button>)}</div>
+                <div className="example-row"><span>{t("试一试", "Try an example")}</span>{(active === "length" ? ["2.54", "25.4", "100"] : active === "weight" ? ["0.5", "1", "10"] : active === "temperature" ? ["0", "20", "100"] : ["100", "250", "500"]).map(n => <button key={n} onClick={() => { measurement.changed('example'); setValue(n); }}>{n} {unit(p.pairs[category].from).symbol}</button>)}</div>
                 <div className="conversion-grid">
                   <div className="input-card">
                     <span className="mini-label">{t("原始数值", "FROM")}</span>
@@ -573,7 +590,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                     className="primary"
                     disabled={!output}
                     onClick={() =>
-                      copy(`${output} ${unit(p.pairs[category].to).symbol}`)
+                      copyResult(`${output} ${unit(p.pairs[category].to).symbol}`)
                     }
                   >
                     <Icon name="copy" /> {t("复制结果", "Copy result")}
@@ -705,7 +722,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                   <button
                     className="primary"
                     disabled={!allValid}
-                    onClick={() => copy(textResult)}
+                    onClick={() => copyResult(textResult)}
                   >
                     <Icon name="copy" />{" "}
                     {t("复制全部英文规格", "Copy all English specs")}
@@ -780,6 +797,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                   <button
                     className="secondary"
                     onClick={() => {
+                      measurement.changed();
                       setLocal(localInput(Date.now(), p.sourceZone));
                       setOccurrence("");
                     }}
@@ -852,7 +870,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                     disabled={instant === undefined}
                     onClick={() =>
                       instant !== undefined &&
-                      copy(
+                      copyResult(
                         `${describeTime(instant, p.targetZone, "en")} [${p.targetZone}] · UTC ${new Date(instant).toISOString()}`,
                       )
                     }
@@ -872,7 +890,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
                 </div>
               </>
             )}
-            {active === "currency" && <CurrencyTool key={`${source.currency}-${target.currency}`} source={source.currency} target={target.currency} zh={zh} precision={p.precision} copy={copy} />}
+            {active === "currency" && <CurrencyTool key={`${source.currency}-${target.currency}`} source={source.currency} target={target.currency} zh={zh} precision={p.precision} copy={copy} measure={!extension} />}
           </section>
         </div>
         <section className="learn-section" aria-label={t("换算指南", "Conversion guide")}>
@@ -924,7 +942,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
         </section>
         <footer>
           <span>
-            UnitPort <span className="footer-dot">/</span>{" "}
+            Uniport <span className="footer-dot">/</span>{" "}
             {t("让跨境，更进一步。", "A little closer to every market.")}
           </span>
           <span>

@@ -1,8 +1,8 @@
-# UnitPort
+# Uniport
 
 跨境卖家的单位、商品规格、箱子体积与时区换算工作台。React + TypeScript + Vite，英文优先并支持中文，无登录、无后端，不上传商品数据。市场推荐默认中国 → 美国，可选展开，不阻挡换算。
 
-产品名为 **UnitPort**；仓库名沿用 `JanineZheng/UniPort`。
+产品名为 **Uniport**；仓库名沿用 `JanineZheng/UniPort`。
 
 ## 本地运行
 
@@ -132,3 +132,18 @@ GitHub Actions 仅验证。2026-10-23 获授权后合并并启用 Cloudflare mai
 默认顺序：汇率 → 重量 → 长宽高转换 → 箱子体积（立方英尺 / CBM）→ 长度 → 商品规格 → 时区 → 容量 → 温度。优先定价及物流场景，通用和类目专用工具靠后。
 
 工具导航上方的「调整排序 / Customize order」进入卡片网格，按住卡片即可上下左右拖动，桌面鼠标与手机触摸均可使用；完成后退出编辑。也支持方向键移动和恢复默认。导航、首页前三个快捷入口和页面底部相关工具共用顺序。排序自动保存至现有 localStorage 偏好的 `toolOrder`，跨页面和刷新保留；不跨设备同步。存储不可用时会提示只在当前页有效。旧版本偏好自动补齐默认排序；未知项和重复项被剔除，新工具按默认顺序追加，保留用户已有排序。
+
+
+### 有效使用统计与 SEO 巡检
+
+网站使用事件区分默认、示例与手动输入：手动输入有效数据且成功复制才触发 `effective_use`，同一输入修订去重，不发送输入、SKU 或结果。默认结果和示例复制不计入有效使用。插件显式禁用这些事件。口径与报表步骤见 [使用统计](docs/USAGE-MEASUREMENT.md)，公开产品表述见 [产品事实](docs/PRODUCT-FACTS.md)。
+
+正式网站内部验收先打开 `?unitport_internal=1`，同标签页后续访问也不加载 GA4；用 `?unitport_internal=0` 恢复。预览和本地环境不发送 GA4。
+
+可选的只读公开 HTML 巡检（需要 Python 3 与系统 curl，保持 TLS 证书校验）：
+
+```sh
+python3 scripts/audit-seo.py --output /tmp/uniport-seo-audit
+```
+
+脚本检查站点地图中的同源页面、静态标题/描述/H1、canonical、JSON-LD、robots 与 404，不执行 JavaScript，也不代表 Google 已收录。GA4/GSC 业务数据与内部审核台账保留在本地工作区，不纳入公开仓库。
