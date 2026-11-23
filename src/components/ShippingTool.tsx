@@ -29,4 +29,3 @@ export default function ShippingTool({ mode, zh, precision, copy, measure = true
     <p className="help">{mode === 'cubic' ? t('体积不是体积重；本工具不估算运费。多箱计算适用于相同尺寸的箱子。', 'Volume is not dimensional weight. This tool does not estimate shipping rates. Quantity applies to identical boxes.') : t('保留长 × 宽 × 高顺序，复制后可直接用于商品详情。','The L × W × H order stays the same. Copy the result into your product listing.')}</p>
   </>;
 }
-

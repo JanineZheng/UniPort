@@ -24,4 +24,3 @@
   script.src = "https://www.googletagmanager.com/gtag/js?id=G-6HWESBP7VK";
   document.head.appendChild(script);
 })();
-

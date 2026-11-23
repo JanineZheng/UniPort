@@ -81,4 +81,3 @@ export default function CurrencyTool({ source, target, zh, precision, copy, meas
     <p className="context-note">{t("每 15 分钟自动重新获取；回到页面或恢复联网时重试。周末、节假日可能沿用前一工作日数据，以数据更新日期为准。金额在本地计算，仅向数据源请求货币对。", "Checks every 15 minutes and retries when you return or reconnect. Weekends and holidays may use the previous business day’s rate; check the rate date. Amounts stay local; only the currency pair is requested.")}</p>
   </div>;
 }
-

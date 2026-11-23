@@ -11,4 +11,3 @@ export const pages = [
   { path: '/currency-converter', tool: 'currency', title: 'Currency Converter with Rate Source & Date | Uniport', heading: 'Currency Converter', zh: '参考汇率换算', description: 'Convert currencies with the latest available daily reference rates from Frankfurter. See the source, rate date, retrieval time and expiry warnings. Not live market prices.', formula: 'Converted amount = amount × daily reference rate. Rates are fetched from Frankfurter; stale or failed requests do not produce conversion results.', example: 'Choose currencies and enter an amount. The rate date and retrieval time are shown separately.' },
 ] as const;
 export function pageFor(path: string) { return pages.find(p => p.path === path.replace(/\/$/, '') || p.path === path) ?? pages[0]; }
-
