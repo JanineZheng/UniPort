@@ -19,6 +19,7 @@ import CurrencyTool from "./components/CurrencyTool";
 import ExtensionPreview from "./components/ExtensionPreview";
 import BatchSpecsHelp from "./components/BatchSpecsHelp";
 import DimensionsHelp from "./components/DimensionsHelp";
+import BoxVolumeHelp from "./components/BoxVolumeHelp";
 import { pages, pageFor } from "./config/pages";
 
 import ToolNavigation from "./components/ToolNavigation";
@@ -325,7 +326,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
               {page.path === "/" ? t("不用切换页面，跨境换算就在手边", "Keep your page. Convert in the side panel.") : zh ? page.zh : page.heading}
             </h1>
             <p>
-              {page.path === "/" ? t("查看商品、核对包装尺寸时，在 Chrome 侧边栏完成换算并复制英文规格。", "Check product dimensions and weight, convert in Chrome, and copy English specs. All beside the page you're working on.") : active === "dimensions" ? t("粘贴或输入商品长、宽、高，将厘米转为英寸。保留三边顺序，检查后复制带单位的英文尺寸。", "Paste or enter product length, width and height to convert cm to inches. Keep the dimension order, review the result and copy labeled English dimensions.") : active === "specs" ? t("粘贴供应商表格中的长、宽、高和重量，最多 500 行。将 cm/kg 转为 in/lb，检查后复制带单位的英文规格。", "Paste up to 500 supplier rows of length, width, height and weight. Convert cm/kg to in/lb, review the results and copy English specs with units.") : active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
+              {page.path === "/" ? t("查看商品、核对包装尺寸时，在 Chrome 侧边栏完成换算并复制英文规格。", "Check product dimensions and weight, convert in Chrome, and copy English specs. All beside the page you're working on.") : active === "cubic" ? t("输入装箱后的长、宽、高和相同尺寸箱数，计算 ft³ 与 m³（CBM）总体积。检查后复制包含箱数和原始尺寸的结果。", "Enter packed carton dimensions and the number of identical boxes. Calculate total cubic feet and CBM, then copy the volumes with the box count and original dimensions.") : active === "dimensions" ? t("粘贴或输入商品长、宽、高，将厘米转为英寸。保留三边顺序，检查后复制带单位的英文尺寸。", "Paste or enter product length, width and height to convert cm to inches. Keep the dimension order, review the result and copy labeled English dimensions.") : active === "specs" ? t("粘贴供应商表格中的长、宽、高和重量，最多 500 行。将 cm/kg 转为 in/lb，检查后复制带单位的英文规格。", "Paste up to 500 supplier rows of length, width, height and weight. Convert cm/kg to in/lb, review the results and copy English specs with units.") : active === "currency" ? t("最新可用的每日参考汇率，来源与数据日期清晰可查。", "Latest available daily reference rates, with a clear source and date.") : t(
                 "厘米转英寸、千克转磅、箱子体积计算。输入即出结果，一键复制。",
                 "Dimensions, weight, box volume. Enter your numbers. Copy your answer.",
               )}
@@ -901,6 +902,7 @@ export default function App({ path = typeof window === "undefined" ? "/" : windo
           {page.tool === "length" && <div className="conversion-table"><h3>{t("厘米 / 英寸速查表", "Centimeters to inches table")}</h3><table><thead><tr><th>cm</th>{[1,5,10,25.4,50,100].map(n => <th key={n}>{n}</th>)}</tr></thead><tbody><tr><th>in</th>{[1,5,10,25.4,50,100].map(n => <td key={n}>{format(convert(String(n), "cm", "in"), 4)}</td>)}</tr></tbody></table></div>}
           {!extension && page.tool === "specs" && <BatchSpecsHelp zh={zh} />}
           {!extension && page.tool === "dimensions" && <DimensionsHelp zh={zh} />}
+          {!extension && page.tool === "cubic" && <BoxVolumeHelp zh={zh} />}
           <div className="related-tools"><h3>{t("更多换算工具", "More conversion tools")}</h3><div>{orderedTools.map(tool => toolPage(tool.id)).filter(other => other.path !== page.path).map(other => <a key={other.path} href={other.path}>{zh ? other.zh : other.heading} <span aria-hidden="true">↗</span></a>)}</div></div>
         </section>
         <section className="trust-strip">

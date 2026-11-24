@@ -1,6 +1,7 @@
-import { dimensionsGuide, guideFor, supplierGuide } from "./config/guides";
+import { boxGuide, dimensionsGuide, guideFor, supplierGuide } from "./config/guides";
 import SupplierGuideContent from "./guides/SupplierGuideContent";
 import DimensionsGuideContent from "./guides/DimensionsGuideContent";
+import BoxGuideContent from "./guides/BoxGuideContent";
 export default function GuidePage({ path = typeof window === "undefined" ? supplierGuide.path : window.location.pathname }: { path?: string }) {
   const guide = guideFor(path) ?? supplierGuide;
   return <div className="article-page">
@@ -13,7 +14,7 @@ export default function GuidePage({ path = typeof window === "undefined" ? suppl
       <p className="guide-lead">{guide.lead}</p>
       <p className="guide-byline">By Uniport · Product workflow guide</p>
       <a className="primary guide-action" href={`${guide.toolPath}#workspace`}>{guide.action}</a>
-      {guide.path === dimensionsGuide.path ? <DimensionsGuideContent /> : <SupplierGuideContent />}
+      {guide.path === boxGuide.path ? <BoxGuideContent /> : guide.path === dimensionsGuide.path ? <DimensionsGuideContent /> : <SupplierGuideContent />}
       <aside className="guide-next"><h2>{guide.nextTitle}</h2><p>{guide.nextIntro}</p><a className="primary guide-action" href={`${guide.toolPath}#workspace`}>Open the {guide.toolLabel.toLowerCase()} →</a></aside>
     </main><footer><span>Uniport · Tools for cross-border work</span><a href="/privacy.html">Privacy & analytics</a></footer>
   </div>;

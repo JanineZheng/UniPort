@@ -16,7 +16,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run test:browser
       - name: Check SEO metadata with a test origin
-        run: npm run test:browser -- tests/browser/seo.spec.ts --output=test-results/site-url
+        run: npm run test:browser -- tests/browser/seo.spec.ts tests/browser/guides.spec.ts --output=test-results/site-url
         env:
           SITE_URL: https://unitport.example
           PLAYWRIGHT_HTML_OUTPUT_DIR: playwright-report/site-url
