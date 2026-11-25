@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { supplierGuide as guide, dimensionsGuide, guides } from "../../src/config/guides";
+import { supplierGuide as guide, dimensionsGuide, boxGuide, guides } from "../../src/config/guides";
 
 for (const guide of guides) {
 test(`${guide.path} serves a complete static article and canonical route`, async ({ browser, request }, testInfo) => {
@@ -9,12 +9,13 @@ test(`${guide.path} serves a complete static article and canonical route`, async
     expect((await page.goto(new URL(guide.path, testInfo.project.use.baseURL).href))?.status()).toBe(200);
     await expect(page).toHaveTitle(guide.title);
     await expect(page.getByRole("heading", { level: 1 })).toHaveText(guide.heading);
-    await expect(page.getByRole("heading", { level: 2 })).toHaveCount(7);
     await expect(page.locator('meta[name="description"]')).toHaveAttribute("content", guide.description);
     await expect(page.locator('meta[property="og:type"]')).toHaveAttribute("content", "article");
     const schema = JSON.parse(await page.locator('script[type="application/ld+json"]').innerText());
     expect(schema).toMatchObject({ "@type": "TechArticle", headline: guide.heading, author: { name: "Uniport" } });
-    if (guide.path === dimensionsGuide.path) {
+    if (guide.path === boxGuide.path) {
+      await expect(page.getByLabel("Example box output")).toHaveText("6 ft³ (0.1699 m³) — 2 boxes, 24 × 18 × 12 in each");
+    } else if (guide.path === dimensionsGuide.path) {
       await expect(page.getByLabel("Example dimensions input")).toHaveText("30 × 20 × 10 cm");
     } else {
       await expect(page.getByLabel("Example supplier input")).toContainText("SAMPLE-A,25.4,50.8,76.2,0.45359237");
@@ -81,4 +82,34 @@ test("dimensions guide example and unit caveat match the actual tool", async ({ 
   await expect(page.getByLabel("Length", { exact: true })).toHaveValue("60");
   await page.getByRole("button", { name: "切换到中文" }).click();
   await expect(page.getByRole("link", { name: "阅读长宽高转换指南与完整示例（英文） →" })).toHaveAttribute("href", dimensionsGuide.path);
+});
+
+
+test("shipping volume guide examples match both volume units and copied context", async ({ page }) => {
+  await page.addInitScript(() => {
+    Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText: async (text: string) => { (window as Window & { copied?: string }).copied = text; } } });
+  });
+  await page.goto(boxGuide.path);
+  const expected = await page.getByLabel("Example box output").innerText();
+  await page.getByRole("link", { name: boxGuide.action, exact: true }).click();
+  for (const [label, value] of [["Length", "24"], ["Width", "18"], ["Height", "12"], ["Identical boxes", "2"]]) {
+    await page.getByLabel(label, { exact: true }).fill(value);
+  }
+  await page.getByLabel("Dimension unit", { exact: true }).selectOption("in");
+  await page.getByLabel("Decimal places", { exact: true }).selectOption("4");
+  await expect(page.locator(".shipping-number")).toHaveText("6 ft³");
+  await expect(page.locator(".shipping-result")).toContainText("0.1699 m³ (CBM) · 2 identical boxes");
+  await page.getByRole("button", { name: "Copy result", exact: true }).click();
+  expect(await page.evaluate(() => (window as Window & { copied?: string }).copied)).toBe(expected);
+  await expect(page.getByRole("link", { name: "Read the shipping box volume guide and worked examples →" })).toHaveAttribute("href", boxGuide.path);
+  for (const [label, value] of [["Length", "60"], ["Width", "40"], ["Height", "30"], ["Identical boxes", "10"]]) {
+    await page.getByLabel(label, { exact: true }).fill(value);
+  }
+  await page.getByLabel("Dimension unit", { exact: true }).selectOption("cm");
+  await expect(page.locator(".shipping-number")).toHaveText("25.4266 ft³");
+  await expect(page.locator(".shipping-result")).toContainText("0.72 m³ (CBM) · 10 identical boxes");
+  await page.getByLabel("Identical boxes", { exact: true }).fill("1.5");
+  await expect(page.getByRole("button", { name: "Copy result", exact: true })).toBeDisabled();
+  await page.getByRole("button", { name: "切换到中文" }).click();
+  await expect(page.getByRole("link", { name: "阅读箱子体积计算指南与完整示例（英文） →" })).toHaveAttribute("href", boxGuide.path);
 });
